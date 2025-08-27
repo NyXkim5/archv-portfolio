@@ -1,0 +1,12 @@
+{
+  "name": "Archv",
+  "short_name": "Archv",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    { "src": "/archv-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/archv-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}
