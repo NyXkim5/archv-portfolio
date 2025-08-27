@@ -34,8 +34,11 @@ export default function Home() {
                 Archv AI Platform
               </h1>
               <p className="mt-3 max-w-[56ch] text-sm sm:text-[15px] opacity-80">
-                Calm software for real work—private by default, simple to run,
-                and designed to make teams faster without the drama.
+                Archv delivers complete privacy for your sensitive data; your
+                data stays yours with clear permissions, export/delete controls,
+                and the option to run in your own environment. Our lightweight
+                context system makes models more efficient, cutting noise for
+                faster, more accurate answers.
               </p>
             </div>
             <div className="col-span-12 lg:col-span-6 flex items-start justify-end">
