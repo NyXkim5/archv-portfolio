@@ -3,14 +3,16 @@ import ScrambleText from "./ScrambleText.jsx";
 import { useTheme, useTokens } from "./ThemeProvider.jsx";
 
 /**
- * Nav (Archv) — tight edges, auto-inverting logo, boxed theme button.
- * - Left: brand + links. Click brand to stow/reveal links (page stays visible).
- * - Right: boxed light/dark switch + live clock, tucked closer to right edge.
- * - Uses ThemeProvider tokens if present (old look), with safe fallbacks.
+ * Archv Header — fixed height, full-bleed bottom rule, consistent padding.
+ * - Brand + links hug left; theme+clock on right.
+ * - Logo swap (no Tailwind dark: dependency):
+ *     • LIGHT: "ARCHV (1).png" forced to BLACK via CSS filter
+ *     • DARK : "image (2).png" (your white night mark) no filter
+ * - Clicking "ARCHV" stows/reveals ONLY the links (not the page).
  */
 
 export default function Nav() {
-  // Try to use your ThemeProvider tokens for the original header look
+  // Theme + tokens (safe fallbacks)
   let themeCtx = {};
   try {
     themeCtx = useTheme?.() || {};
@@ -21,6 +23,7 @@ export default function Nav() {
     document.documentElement.classList.contains("dark")
       ? "dark"
       : "light");
+  const isDark = theme === "dark";
 
   let t = {};
   try {
@@ -32,7 +35,6 @@ export default function Nav() {
   const font = t.font || "antialiased";
 
   const [stowed, setStowed] = React.useState(false);
-
   React.useEffect(() => {
     try {
       const last = sessionStorage.getItem("archv:stowed");
@@ -45,25 +47,44 @@ export default function Nav() {
     } catch {}
   }, [stowed]);
 
-  // Logo (prefer src/assets, fallback to /public)
-  let logoUrl = "/ARCHV (1).png";
+  // --- brand mark sources (night/day) ---
+  let lightMark = "/ARCHV (1).png"; // base white logo -> forced black via filter in light mode
+  let darkMark = "/image (2).png"; // your night white logo
   try {
-    logoUrl = new URL("../assets/ARCHV (1).png", import.meta.url).href;
+    lightMark = new URL("../assets/ARCHV (1).png", import.meta.url).href;
+  } catch {}
+  try {
+    darkMark = new URL("../assets/image (2).png", import.meta.url).href;
   } catch {}
 
   return (
     <>
-      <StyleNavCSS />
+      <style>{`
+        :root { --header-h: 56px; }
+        .archv-header { position: sticky; top: 0; z-index: 60; }
+        /* full-bleed bottom rule (continuous line) */
+        .archv-header::after{
+          content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+          background: color-mix(in oklab, currentColor 18%, transparent);
+          pointer-events:none;
+        }
+        .archv-inner{ height:var(--header-h); display:flex; align-items:center; }
+        .archv-nav-wrap { max-width: 1000px; }
+        .archv-nav-open { transform: translateX(0) scaleX(1); clip-path: inset(0 0 0 0); }
+        .archv-nav-stowed { transform: translateX(-8px) scaleX(0.62); clip-path: inset(0 98% 0 0); pointer-events:none; }
+        @media (prefers-reduced-motion: reduce){
+          .archv-nav-wrap, .archv-nav-wrap nav { transition: none !important; }
+        }
+      `}</style>
 
       <header
-        className={`w-full sticky top-0 z-[60] ${pageBg} ${pageText} ${font} border-b border-current/10`}
+        className={`archv-header w-full relative ${pageBg} ${pageText} ${font}`}
       >
-        {/* tighter horizontal padding so it hugs edges more */}
-        <div className="mx-0 px-3 sm:px-4 md:px-6 lg:px-7 xl:px-8 py-3.5">
-          <div className="flex items-center justify-between gap-4">
-            {/* LEFT: brand + pages (kept left) */}
-            <div className="flex items-center gap-4 min-w-0">
-              {/* Brand toggler (stows only the links) */}
+        {/* IMPORTANT: matches page paddings exactly */}
+        <div className="archv-inner mx-0 px-6 md:px-8">
+          <div className="flex items-center justify-between w-full gap-3">
+            {/* LEFT: brand + links */}
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => setStowed((s) => !s)}
                 aria-pressed={stowed}
@@ -71,36 +92,47 @@ export default function Nav() {
                 className="group flex items-center gap-2 select-none focus:outline-none"
                 title={stowed ? "Reveal pages" : "Hide pages"}
               >
-                {/* Auto-invert logo: dark mode => white, light => dark */}
-                <img
-                  src={logoUrl}
-                  alt="Archv mark"
-                  className="h-[18px] w-auto object-contain transition dark:invert"
-                  draggable="false"
-                />
+                {/* Theme-conditional logo: render ONE image, updates on theme change */}
+                {isDark ? (
+                  <img
+                    key="archv-dark"
+                    src={darkMark}
+                    alt="Archv mark"
+                    className="h-[18px] w-auto object-contain select-none"
+                    draggable="false"
+                  />
+                ) : (
+                  <img
+                    key="archv-light"
+                    src={lightMark}
+                    alt="Archv mark"
+                    className="h-[18px] w-auto object-contain select-none"
+                    draggable="false"
+                    style={{
+                      // force solid black in light mode from white source
+                      filter: "brightness(0) saturate(100%)",
+                    }}
+                  />
+                )}
+
                 <ScrambleText
-                  key={stowed ? "archv-out" : "archv-in"} // retrigger on toggle
-                  text="Archv"
-                  duration={780}
+                  key={stowed ? "archv-out" : "archv-in"}
+                  text="ARCHV"
+                  duration={600}
                   scrambleSet="symbols"
-                  className="text-[13px] sm:text-[14px] tracking-[0.12em] uppercase"
+                  className="text-[13px] tracking-[0.12em] uppercase"
                 />
               </button>
 
-              {/* Page links — slide/clip into the brand when stowed */}
               <div
-                className={[
-                  "overflow-hidden transition-all duration-400 ease-[cubic-bezier(.22,.61,.36,1)]",
-                  "archv-nav-wrap",
-                  stowed ? "archv-nav-stowed" : "archv-nav-open",
-                ].join(" ")}
+                className={`overflow-hidden transition-all duration-400 ease-[cubic-bezier(.22,.61,.36,1)] archv-nav-wrap ${
+                  stowed ? "archv-nav-stowed" : "archv-nav-open"
+                }`}
               >
                 <nav
-                  className={[
-                    "flex items-center gap-5 sm:gap-6 text-[12.5px] whitespace-nowrap",
-                    "transition-opacity duration-300",
-                    stowed ? "opacity-0" : "opacity-100",
-                  ].join(" ")}
+                  className={`flex items-center gap-4 sm:gap-5 text-[12.5px] whitespace-nowrap transition-opacity duration-300 ${
+                    stowed ? "opacity-0" : "opacity-100"
+                  }`}
                 >
                   <a className="hover:opacity-80 transition" href="/">
                     Home
@@ -121,9 +153,9 @@ export default function Nav() {
               </div>
             </div>
 
-            {/* RIGHT: boxed theme switch + clock (tucked to the edge) */}
-            <div className="flex items-center gap-3">
-              <ThemeSwitchWithContext />
+            {/* RIGHT: theme + clock (no outline) */}
+            <div className="flex items-center gap-2">
+              <ThemeSwitchMinimal />
               <LiveClock />
             </div>
           </div>
@@ -133,33 +165,8 @@ export default function Nav() {
   );
 }
 
-/* ---- CSS helper for the stow animation (clips/leans into brand on the left) ---- */
-function StyleNavCSS() {
-  return (
-    <style>{`
-      .archv-nav-wrap { max-width: 1000px; }
-      .archv-nav-open {
-        transform: translateX(0) scaleX(1);
-        clip-path: inset(0 0 0 0 round 0);
-      }
-      .archv-nav-stowed {
-        transform: translateX(-8px) scaleX(0.62);
-        clip-path: inset(0 98% 0 0 round 0);
-        pointer-events: none;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .archv-nav-wrap, .archv-nav-wrap nav { transition: none !important; }
-      }
-    `}</style>
-  );
-}
-
-/* ---------------------------- Theme Switch (boxed) ---------------------------- */
-/**
- * Uses ThemeProvider.setTheme if available for your original “mood”.
- * Always mirrors to <html class="dark"> so Tailwind dark styles apply.
- */
-function ThemeSwitchWithContext() {
+/* ---------- Minimal theme switch (no outline/border) ---------- */
+function ThemeSwitchMinimal() {
   let ctx = {};
   try {
     ctx = useTheme?.() || {};
@@ -189,13 +196,7 @@ function ThemeSwitchWithContext() {
   return (
     <button
       onClick={toggle}
-      className={[
-        "inline-flex items-center gap-2 px-2.5 py-1.5",
-        "text-[12px] rounded-[6px]",
-        // boxed outline look
-        "border border-current/30 outline outline-1 outline-current/20",
-        "hover:bg-black/5 dark:hover:bg-white/10 transition",
-      ].join(" ")}
+      className="inline-flex items-center gap-2 px-2.5 py-1.5 text-[12px] rounded-[6px] bg-transparent hover:bg-black/5 dark:hover:bg-white/10 transition focus:outline-none"
       title={isDark ? "Switch to light" : "Switch to dark"}
     >
       {isDark ? <MoonIcon /> : <SunIcon />}
@@ -230,7 +231,7 @@ function MoonIcon() {
   );
 }
 
-/* ------------------------------ Live Clock ------------------------------ */
+/* ----------------------------- Live Clock ----------------------------- */
 function LiveClock() {
   const [now, setNow] = React.useState(new Date());
   React.useEffect(() => {

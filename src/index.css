@@ -2,30 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------- Archv custom bits ---------- */
-
-/* Radial clip for overlay open/close */
-.archv-clip-closed {
-  /* tiny circle at top-left to “store” into the brand area feeling */
-  clip-path: circle(0% at 2rem 2.5rem);
+/* Prevent layout shift when scrollbar shows/hides */
+html {
+  scrollbar-gutter: stable both-edges;
 }
 
-.archv-clip-open {
-  /* grow to fill */
-  clip-path: circle(150% at 50% 50%);
+/* Consistent base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
-
-/* Optional: while shelved, you can style global things via this class on <html> */
-html.archv-shelved {
-  /* nothing mandatory; placeholder if you want to dim scrollbars etc. */
-}
-
-/* Smooth transforms for anything you later animate */
-.archv-smooth {
-  transition: all 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-/* Make images render crisp */
-img {
-  image-rendering: auto;
+body {
+  margin: 0;
+  @apply antialiased;
 }

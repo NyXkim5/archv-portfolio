@@ -14,8 +14,10 @@ export default function Contact() {
   const stamp = new URL("../assets/ARCHV (5).png", import.meta.url).href;
 
   return (
-    <div className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font}`}>
-      <div className="w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
+    <div
+      className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
+    >
+      <div className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
         <Nav />
 
         {/* Massive headline */}
@@ -135,7 +137,6 @@ function Pill({ children }) {
   );
 }
 
-/** Animated binary that jitters then reveals decoded text via scramble */
 function BinaryDecodeCard() {
   const prefersReduced =
     typeof window !== "undefined" &&
@@ -310,7 +311,6 @@ function toRoman(num) {
   return out;
 }
 
-/** Create lines of 0/1 from text (8-bit), wrapped to given width & rows */
 function binaryLinesFromText(text, cols = 44, rows = 8) {
   const bits = Array.from(text)
     .map((ch) => ch.charCodeAt(0).toString(2).padStart(8, "0"))
@@ -325,7 +325,6 @@ function binaryLinesFromText(text, cols = 44, rows = 8) {
   return lines;
 }
 
-/** Flip a handful of random bits in a matrix of strings (for jitter) */
 function flipRandomBits(lines, flips = 16) {
   const out = [...lines];
   const rows = out.length;
@@ -342,7 +341,6 @@ function flipRandomBits(lines, flips = 16) {
   return out;
 }
 
-/** Tasteful one-shot scramble (used for decoded line) */
 function ScrambleTextOnce({
   text,
   className = "",

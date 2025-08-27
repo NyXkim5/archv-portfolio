@@ -11,8 +11,10 @@ export default function Philosophy() {
   const poster = new URL("../assets/ARCHV (4).png", import.meta.url).href;
 
   return (
-    <div className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font}`}>
-      <div className="w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
+    <div
+      className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
+    >
+      <div className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
         <Nav />
 
         {/* micro-animations + helpers */}
@@ -78,9 +80,7 @@ export default function Philosophy() {
               <img
                 src={poster}
                 alt="Archv editorial poster"
-                className={`w-full h-auto object-contain select-none ${
-                  isDark ? "dark:invert" : ""
-                }`}
+                className="w-full h-auto object-contain select-none"
                 style={{
                   imageRendering: "auto",
                   containIntrinsicSize: "900px 1200px",
@@ -146,7 +146,7 @@ export default function Philosophy() {
           </a>
         </div>
 
-        {/* Footer */}
+        {/* Footer (page-level) */}
         <footer className={`border-t ${bx} pt-3 text-[11px] ${mute}`}>
           © Archv AI — design iteration 2
         </footer>
@@ -157,7 +157,6 @@ export default function Philosophy() {
 
 /* ——— components ——— */
 
-/** Rotated side label; accepts offsetTop (as % or css length) */
 function SideLabel({ side = "left", text, offsetTop = "70%" }) {
   return (
     <div
@@ -208,7 +207,6 @@ function MiniMenu() {
   );
 }
 
-/** Circle badge with subtle moving hairline */
 function CircleBadge({ textTop = "quiet", textBottom = "software" }) {
   return (
     <div
@@ -228,7 +226,6 @@ function CircleBadge({ textTop = "quiet", textBottom = "software" }) {
   );
 }
 
-/** Rotating quote with tiny countdown + progress bar */
 function RotatingQuote({ quotes, intervalMs = 10000 }) {
   const prefersReduced =
     typeof window !== "undefined" &&
@@ -289,10 +286,7 @@ function RotatingQuote({ quotes, intervalMs = 10000 }) {
         <div className="h-[2px] flex-1 bg-current/15 overflow-hidden">
           <div
             className="h-[2px] bg-current"
-            style={{
-              width: `${pct}%`,
-              transition: "width 0.1s linear",
-            }}
+            style={{ width: `${pct}%`, transition: "width 0.1s linear" }}
           />
         </div>
         <span className="text-[10px] opacity-60 tabular-nums">{secs}s</span>

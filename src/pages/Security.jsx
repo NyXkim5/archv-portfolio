@@ -1,3 +1,4 @@
+// src/pages/Security.jsx
 import React from "react";
 import Nav from "../components/Nav.jsx";
 import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
@@ -11,8 +12,11 @@ export default function Security() {
   const logoUrl = new URL("../assets/ARCHV (1).png", import.meta.url).href;
 
   return (
-    <div className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font}`}>
-      <div className="w-full mx-0 px-3 sm:px-4 md:px-6 py-5">
+    <div
+      className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
+    >
+      {/* MAIN — same horizontal padding as other pages */}
+      <div className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
         <Nav />
 
         {/* Local keyframes */}
@@ -71,7 +75,8 @@ export default function Security() {
 
               <div className="flex items-start gap-4">
                 <AsciiSeal />
-                <LogoStamp src={logoUrl} invert={isDark} />
+                {/* White source PNG -> black on light (invert), white on dark (no invert) */}
+                <LogoStamp src={logoUrl} />
               </div>
             </div>
 
@@ -236,9 +241,7 @@ function RailItem({ label, hint }) {
         >
           →
         </span>
-        <span
-          className={`absolute inset-0 right-0 text-[11px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100`}
-        >
+        <span className="absolute inset-0 right-0 text-[11px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
           {hint}
         </span>
       </div>
@@ -277,7 +280,7 @@ function Card({ title, children, r = false }) {
   return (
     <section
       className={`col-span-12 md:col-span-4 p-4 sm:p-5 border ${bx} ${
-        r ? `md:border-r` : ""
+        r ? "md:border-right md:border-r" : ""
       }`}
     >
       <h3 className="text-xl sm:text-2xl font-semibold">{title}</h3>
@@ -325,7 +328,8 @@ function AsciiSeal() {
   );
 }
 
-function LogoStamp({ src, invert }) {
+/** Page logo stamp: white PNG -> black on light, white on dark */
+function LogoStamp({ src }) {
   return (
     <div
       className="w-16 h-16 border border-current flex items-center justify-center select-none"
@@ -336,9 +340,7 @@ function LogoStamp({ src, invert }) {
         src={src}
         alt=""
         draggable="false"
-        className={`w-10 h-10 object-contain transition ${
-          invert ? "filter invert" : ""
-        }`}
+        className="w-10 h-10 object-contain transition invert dark:invert-0"
         style={{ imageRendering: "crisp-edges" }}
       />
     </div>
@@ -353,7 +355,6 @@ function ScrambleTextOnMount({
   durationMs = 2000,
   chaos = "!<>-_\\/[]{}—=+*^?#_0123456789",
 }) {
-  // Respect reduced motion: show final text immediately
   const prefersReduced =
     typeof window !== "undefined" &&
     window.matchMedia &&
@@ -366,7 +367,7 @@ function ScrambleTextOnMount({
   const [out, setOut] = React.useState(initialScramble);
 
   React.useEffect(() => {
-    if (prefersReduced) return; // no animation
+    if (prefersReduced) return;
     const start = performance.now();
     const chars = chaos.split("");
     let raf = 0;
@@ -382,11 +383,8 @@ function ScrambleTextOnMount({
             : chars[(i + Math.floor((1 - t) * 60)) % chars.length];
       }
       setOut(s);
-      if (t < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        setOut(text);
-      }
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else setOut(text);
     };
 
     raf = requestAnimationFrame(tick);
@@ -404,11 +402,7 @@ function scrambleSeed(target, chaos) {
   const chars = chaos.split("");
   let s = "";
   for (let i = 0; i < target.length; i++) {
-    if (target[i] === " ") {
-      s += " ";
-      continue;
-    }
-    s += chars[(i * 7) % chars.length];
+    s += target[i] === " " ? " " : chars[(i * 7) % chars.length];
   }
   return s;
 }

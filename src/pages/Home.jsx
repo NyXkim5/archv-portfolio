@@ -8,6 +8,7 @@ import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
  * - Light: faint orange glow
  * - Flickers for ~2.1s, then settles
  * - Footer pinned to bottom: © Archv (left) / design iteration 2 (right)
+ * - Top paddings match every page: px-6 md:px-8
  */
 
 export default function Home() {
@@ -21,8 +22,8 @@ export default function Home() {
       {/* local keyframes */}
       <StyleFlicker />
 
-      {/* MAIN */}
-      <div className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
+      {/* MAIN (same horizontal pads as other pages) */}
+      <div className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
         <Nav />
 
         {/* Top row: intro */}
@@ -51,8 +52,8 @@ export default function Home() {
         {/* (your reel / other sections can follow here) */}
       </div>
 
-      {/* STICKY FOOTER */}
-      <footer className="w-full border-t border-current/10 py-3 px-4 sm:px-6 md:px-8">
+      {/* STICKY FOOTER (pads match header/pages) */}
+      <footer className="w-full border-t border-current/10 py-3 px-6 md:px-8">
         <div className="flex items-center justify-between text-[11px] tracking-wide opacity-70">
           <span>© {new Date().getFullYear()} Archv</span>
           <span>design iteration 2</span>
@@ -74,7 +75,7 @@ function CenterLogoBoot() {
     return () => clearTimeout(t);
   }, []);
 
-  // same logo used in header
+  // same logo used in header (white source PNG)
   const logoUrl = new URL("../assets/ARCHV (1).png", import.meta.url).href;
 
   const glow = isDark
@@ -123,14 +124,8 @@ function StyleFlicker() {
         100% { opacity: 1;   transform: translateY(0px) scale(1.0); }
       }
 
-      .archv-boot-flicker {
-        animation: archvFlicker 2.1s steps(24, end) both;
-      }
-
-      .archv-boot-stable {
-        opacity: 1;
-        transform: none;
-      }
+      .archv-boot-flicker { animation: archvFlicker 2.1s steps(24, end) both; }
+      .archv-boot-stable { opacity: 1; transform: none; }
     `}</style>
   );
 }
