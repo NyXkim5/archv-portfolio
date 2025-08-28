@@ -22,6 +22,22 @@
       })();
     </script>
     <title>Archv</title>
+    <style>
+      /* kill default margins and scrollbar gap on Windows */
+      html,
+      body,
+      #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overflow-x: hidden;
+      }
+      :root {
+        scrollbar-gutter: stable;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
