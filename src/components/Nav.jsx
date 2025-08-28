@@ -7,7 +7,7 @@ import { useTheme, useTokens } from "./ThemeProvider.jsx";
  * - Brand + links left; Login + clock right
  * - Continuous bottom rule, matching page paddings
  * - Clicking brand stows/reveals ONLY the links
- * - Logo uses ONLY "ARCHV (1).png" and is forced BLACK via CSS filter
+ * - Logo now uses archv-logo.png (black-forced)
  */
 
 export default function Nav() {
@@ -28,10 +28,10 @@ export default function Nav() {
     } catch {}
   }, [stowed]);
 
-  // Use ONLY ARCHV (1).png
-  let logoUrl = "/ARCHV (1).png";
+  // Use ONLY archv-logo.png
+  let logoUrl = "/archv-logo.png";
   try {
-    logoUrl = new URL("../assets/ARCHV (1).png", import.meta.url).href;
+    logoUrl = new URL("../assets/archv-logo.png", import.meta.url).href;
   } catch {}
 
   return (

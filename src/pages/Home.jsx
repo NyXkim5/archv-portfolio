@@ -3,12 +3,11 @@ import React from "react";
 import Nav from "../components/Nav.jsx";
 import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
 
-/**
- * Home — fixes header alignment by rendering <Nav /> OUTSIDE the padded wrapper.
- * - Nav is now full-bleed and aligns with the bottom rule like other pages.
- * - Keeps sherbet breathing glow + boot flicker.
- * - Footer unchanged.
- */
+// ✅ Logos
+import logoSvg from "../assets/ARCHV (2).svg";
+
+// ✅ Lucide icons for socials
+import { Linkedin, Instagram, Music2 } from "lucide-react";
 
 export default function Home() {
   const { theme } = useTheme();
@@ -21,17 +20,15 @@ export default function Home() {
       {/* local keyframes */}
       <StyleFlickerAndPulse />
 
-      {/* ✅ Nav sits OUTSIDE the padded content wrapper (no extra left padding) */}
       <Nav />
 
-      {/* MAIN (page padding starts here) */}
+      {/* MAIN */}
       <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
-        {/* Top row: intro */}
         <header className="mt-10 md:mt-14">
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-6">
               <h1 className="text-[34px] sm:text-[40px] md:text-[48px] leading-[1.05] font-medium tracking-tight">
-                Archv AI Platform
+                Archv AI
               </h1>
               <p className="mt-3 max-w-[56ch] text-sm sm:text-[15px] opacity-80">
                 Calm software for real work—private by default, simple to run,
@@ -44,16 +41,48 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Center logo (sherbet breathing glow) */}
+        {/* Center logo */}
         <section className="relative mt-12 md:mt-16">
           <CenterLogoBoot />
         </section>
       </main>
 
-      {/* STICKY FOOTER */}
+      {/* FOOTER */}
       <footer className="w-full border-t border-current/10 py-3 px-4 sm:px-6 md:px-8">
-        <div className="flex items-center justify-between text-[11px] tracking-wide opacity-70">
+        <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] tracking-wide opacity-70 gap-3">
           <span>© {new Date().getFullYear()} Archv</span>
+
+          {/* ✅ Social links */}
+          <div className="flex items-center gap-4 opacity-80">
+            <a
+              href="https://www.linkedin.com/company/archvai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-100 transition"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="w-6 h-6" />
+            </a>
+            <a
+              href="https://www.instagram.com/archvofficial/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-100 transition"
+              aria-label="Instagram"
+            >
+              <Instagram className="w-6 h-6" />
+            </a>
+            <a
+              href="https://www.tiktok.com/@archvstudios?lang=en"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:opacity-100 transition"
+              aria-label="TikTok"
+            >
+              <Music2 className="w-6 h-6" />
+            </a>
+          </div>
+
           <span>design iteration 2</span>
         </div>
       </footer>
@@ -61,21 +90,18 @@ export default function Home() {
   );
 }
 
-/* ----------------- Center Logo (breathing glow, no glitch) ----------------- */
-
+/* ----------------- Center Logo ----------------- */
 function CenterLogoBoot() {
   const [booting, setBooting] = React.useState(true);
   React.useEffect(() => {
-    const t = setTimeout(() => setBooting(false), 2100); // ~2.1s boot flicker
+    const t = setTimeout(() => setBooting(false), 2100);
     return () => clearTimeout(t);
   }, []);
-
-  const logoUrl = new URL("../assets/ARCHV (1).png", import.meta.url).href;
 
   return (
     <div className="w-full grid place-items-center py-10">
       <img
-        src={logoUrl}
+        src={logoSvg}
         alt="ARCHV mark"
         draggable="false"
         className={[
@@ -89,12 +115,10 @@ function CenterLogoBoot() {
   );
 }
 
-/* ----------------- Styles / Keyframes ----------------- */
-
+/* ----------------- Styles ----------------- */
 function StyleFlickerAndPulse() {
   return (
     <style>{`
-      /* Quick boot flicker (kept) */
       @keyframes archvFlicker {
         0%   { opacity: .08; transform: translateY(0px) scale(.98); }
         6%   { opacity: .65; transform: translateY(-1px) scale(1.00); }
@@ -112,25 +136,21 @@ function StyleFlickerAndPulse() {
       .archv-boot-flicker { animation: archvFlicker 2.1s steps(24, end) both; }
       .archv-boot-stable  { opacity: 1; transform: none; }
 
-      /* Sherbet breathing glow (no glitch) */
       @keyframes sherbetPulse {
         0% {
           filter:
-            brightness(0)
             drop-shadow(0 0 6px rgba(255,106,0,.22))
             drop-shadow(0 0 10px rgba(255,218,87,.14))
             drop-shadow(0 0 14px rgba(255,106,213,.18));
         }
         50% {
           filter:
-            brightness(0)
             drop-shadow(0 0 12px rgba(255,106,0,.45))
             drop-shadow(0 0 22px rgba(255,218,87,.28))
             drop-shadow(0 0 28px rgba(255,106,213,.36));
         }
         100% {
           filter:
-            brightness(0)
             drop-shadow(0 0 6px rgba(255,106,0,.22))
             drop-shadow(0 0 10px rgba(255,218,87,.14))
             drop-shadow(0 0 14px rgba(255,106,213,.18));
