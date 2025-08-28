@@ -1,3 +1,4 @@
+// src/pages/Philosophy.jsx
 import React from "react";
 import Nav from "../components/Nav.jsx";
 import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
@@ -14,9 +15,11 @@ export default function Philosophy() {
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
     >
-      <div className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
-        <Nav />
+      {/* ✅ Nav outside the padded wrapper (full-bleed, matches other pages) */}
+      <Nav />
 
+      {/* MAIN — padding matches Home/Platform */}
+      <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
         {/* micro-animations + helpers */}
         <style>{`
           @keyframes scan { 0% { left: 0 } 100% { left: 100% } }
@@ -150,7 +153,7 @@ export default function Philosophy() {
         <footer className={`border-t ${bx} pt-3 text-[11px] ${mute}`}>
           © Archv AI — design iteration 2
         </footer>
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,6 +1,9 @@
 node_modules/
 dist/
-build/
+.vscode/
 .DS_Store
 .env
-.vscode/
+# build caches
+*.log
+# editor stuff
+*.swp

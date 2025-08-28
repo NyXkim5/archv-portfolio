@@ -1,3 +1,4 @@
+// src/pages/Contact.jsx
 import React from "react";
 import Nav from "../components/Nav.jsx";
 import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
@@ -17,8 +18,13 @@ export default function Contact() {
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
     >
-      <div className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
-        <Nav />
+      {/* ✅ Full-bleed header, matches other pages */}
+      <Nav />
+
+      {/* MAIN — standardized paddings */}
+      <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
+        {/* thin divider so the header line sits identical across pages */}
+        <div className="mt-2 border-b border-current/10" />
 
         {/* Massive headline */}
         <header className="mt-14 sm:mt-16 md:mt-20">
@@ -122,7 +128,7 @@ export default function Contact() {
             </div>
           </div>
         </footer>
-      </div>
+      </main>
     </div>
   );
 }
@@ -137,6 +143,7 @@ function Pill({ children }) {
   );
 }
 
+/** Animated binary that jitters then reveals decoded text via scramble */
 function BinaryDecodeCard() {
   const prefersReduced =
     typeof window !== "undefined" &&
@@ -311,6 +318,7 @@ function toRoman(num) {
   return out;
 }
 
+/** Create lines of 0/1 from text (8-bit), wrapped to given width & rows */
 function binaryLinesFromText(text, cols = 44, rows = 8) {
   const bits = Array.from(text)
     .map((ch) => ch.charCodeAt(0).toString(2).padStart(8, "0"))
@@ -325,6 +333,7 @@ function binaryLinesFromText(text, cols = 44, rows = 8) {
   return lines;
 }
 
+/** Flip a handful of random bits in a matrix of strings (for jitter) */
 function flipRandomBits(lines, flips = 16) {
   const out = [...lines];
   const rows = out.length;
@@ -341,6 +350,7 @@ function flipRandomBits(lines, flips = 16) {
   return out;
 }
 
+/** Tasteful one-shot scramble (used for decoded line) */
 function ScrambleTextOnce({
   text,
   className = "",

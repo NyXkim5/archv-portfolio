@@ -17,3 +17,13 @@ body {
   margin: 0;
   @apply antialiased;
 }
+html {
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Fallback for browsers without scrollbar-gutter */
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}

@@ -15,10 +15,11 @@ export default function Security() {
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
     >
-      {/* MAIN — same horizontal padding as other pages */}
-      <div className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
-        <Nav />
+      {/* ✅ Nav matches Home/Platform (outside wrapper, full-bleed) */}
+      <Nav />
 
+      {/* MAIN — same horizontal padding as the other pages */}
+      <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
         {/* Local keyframes */}
         <style>{`
           @keyframes ticker { 0% {transform:translateX(0)} 100% {transform:translateX(-50%)} }
@@ -177,7 +178,7 @@ export default function Security() {
         <div className={`mt-6 border-t ${bx} pt-3 text-[11px] ${mute}`}>
           © Archv AI — design iteration 2
         </div>
-      </div>
+      </main>
     </div>
   );
 }
