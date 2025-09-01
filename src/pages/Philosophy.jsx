@@ -15,21 +15,17 @@ export default function Philosophy() {
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
     >
-      {/* ✅ Nav outside the padded wrapper (full-bleed, matches other pages) */}
       <Nav />
 
-      {/* MAIN — padding matches Home/Platform */}
       <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
-        {/* micro-animations + helpers */}
         <style>{`
           @keyframes scan { 0% { left: 0 } 100% { left: 100% } }
           @keyframes fadeUp { 0% { opacity:.0; transform: translateY(6px)} 100% { opacity:1; transform: translateY(0)} }
-          @media (prefers-reduced-motion: reduce) {
-            * { animation: none !important; transition: none !important }
-          }
+          /* ping–pong motion that stops exactly at --maxX */
+          @keyframes pong { from { transform: translateX(0) } to { transform: translateX(var(--maxX)) } }
+          @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }
         `}</style>
 
-        {/* Rotated side labels — slightly higher (70%) to avoid any collisions */}
         <SideLabel side="left" text="PHILOSOPHY" offsetTop="70%" />
         <SideLabel side="right" text="ARCHV / AI" offsetTop="70%" />
 
@@ -38,19 +34,26 @@ export default function Philosophy() {
           <h1 className="text-3xl sm:text-4xl tracking-tight leading-none break-words">
             ARCHV — Philosophy
           </h1>
+
           <div className="min-w-[220px]">
-            <ScrambleTextOnMount
-              text="Simple • Quiet • True"
-              className={`${mute} text-[11px] tracking-[0.22em] uppercase block`}
-              durationMs={900}
-            />
-            <ScanUnderline />
+            {/* inline-block so width === actual text width */}
+            <span
+              id="motto-label"
+              className={`${mute} text-[11px] tracking-[0.22em] uppercase inline-block`}
+            >
+              <ScrambleTextOnMount
+                text="Simple • Quiet • True"
+                durationMs={900}
+              />
+            </span>
+            {/* Pong underline that ends at TRUE and bounces back */}
+            <PongUnderline targetId="motto-label" cursorText="TRUE" />
           </div>
         </header>
 
         {/* Editorial grid */}
         <section className="grid grid-cols-12 gap-6 lg:gap-10 mt-6">
-          {/* LEFT index */}
+          {/* LEFT */}
           <aside className="col-span-12 md:col-span-3 order-2 md:order-1">
             <div className="md:sticky md:top-6 space-y-6">
               <MiniMenu />
@@ -66,7 +69,7 @@ export default function Philosophy() {
             </div>
           </aside>
 
-          {/* CENTER poster — smaller & crisp */}
+          {/* CENTER */}
           <figure className="col-span-12 md:col-span-6 order-1 md:order-2">
             <div
               className={`border ${bx} bg-white dark:bg-black overflow-hidden mx-auto`}
@@ -101,11 +104,11 @@ export default function Philosophy() {
             </figcaption>
           </figure>
 
-          {/* RIGHT: badge + rotating quotes + blocks */}
+          {/* RIGHT */}
           <aside className="col-span-12 md:col-span-3 order-3">
             <div className="flex flex-col items-start gap-6">
               <div className="flex flex-col sm:flex-row items-start gap-4">
-                <CircleBadge textTop="calm" textBottom="software" />
+                <LogoGlowBadge size={112} />
                 <RotatingQuote
                   quotes={[
                     "We fix the messy parts so teams can think.",
@@ -149,7 +152,6 @@ export default function Philosophy() {
           </a>
         </div>
 
-        {/* Footer (page-level) */}
         <footer className={`border-t ${bx} pt-3 text-[11px] ${mute}`}>
           © Archv AI — design iteration 2
         </footer>
@@ -207,25 +209,6 @@ function MiniMenu() {
         </li>
       ))}
     </ul>
-  );
-}
-
-function CircleBadge({ textTop = "quiet", textBottom = "software" }) {
-  return (
-    <div
-      className="rounded-full border border-current w-36 h-36 flex items-center justify-center text-center leading-tight relative overflow-hidden"
-      aria-hidden
-    >
-      <div className="text-[11px] tracking-[0.22em] uppercase">
-        {textTop}
-        <br />
-        {textBottom}
-      </div>
-      <span
-        className="absolute top-0 left-0 h-px w-1/2 bg-current/30"
-        style={{ animation: "scan 2.6s linear infinite" }}
-      />
-    </div>
   );
 }
 
@@ -325,20 +308,119 @@ function LedgerRow({ label, value }) {
   );
 }
 
-function ScanUnderline() {
+/* ===== PONG underline (measured; no spill) ===== */
+function PongUnderline({ targetId, cursorText = "TRUE" }) {
+  const measureRef = React.useRef(null);
+  const [vars, setVars] = React.useState({ railW: 0, cursorW: 0 });
+
+  React.useEffect(() => {
+    const measure = () => {
+      const labelEl = document.getElementById(targetId);
+      if (!labelEl || !measureRef.current) return;
+
+      // clamp to whole pixels to avoid half-pixel overshoot
+      const railW = Math.floor(labelEl.getBoundingClientRect().width);
+      const cursorW = Math.ceil(
+        measureRef.current.getBoundingClientRect().width
+      );
+      setVars({ railW, cursorW });
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    const el = document.getElementById(targetId);
+    if (el) ro.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [targetId]);
+
+  const styleVars = {
+    ["--railW"]: `${vars.railW}px`,
+    ["--cursorW"]: `${vars.cursorW}px`,
+    ["--fudge"]: "1px",
+    ["--maxX"]: `calc(var(--railW) - var(--cursorW) - var(--fudge))`,
+  };
+
   return (
-    <div className="relative h-[2px] mt-1 opacity-40">
-      <div className="absolute inset-0 bg-current/20" />
-      <div
-        className="absolute top-0 h-[2px] w-10 bg-current"
-        style={{ animation: "scan 1.8s linear infinite" }}
+    <>
+      {/* Hidden measurer for the word using identical typography */}
+      <span
+        ref={measureRef}
+        className="absolute opacity-0 pointer-events-none select-none text-[11px] tracking-[0.22em] uppercase"
         aria-hidden
+      >
+        {cursorText}
+      </span>
+
+      {/* Rail width equals label width; overflow prevents bleed */}
+      <div
+        className="relative h-[2px] mt-1 opacity-40 overflow-hidden"
+        style={{ width: "var(--railW)", ...styleVars }}
+      >
+        <div className="absolute inset-0 bg-current/20" />
+        <div
+          className="absolute top-0 h-[2px] bg-current will-change-transform"
+          style={{
+            width: "var(--cursorW)",
+            animation: "pong 2.2s linear infinite alternate",
+          }}
+          aria-hidden
+        />
+      </div>
+    </>
+  );
+}
+
+/* ===== Logo with *subtle* orange glow (no black oval; bigger image) ===== */
+function LogoGlowBadge({ size = 112 }) {
+  // Use your existing logo asset (same one used on Security page)
+  const logo = new URL("../assets/ARCHV (1).png", import.meta.url).href;
+  const glowSize = Math.round(size * 1.5); // softer & smaller halo than before
+
+  return (
+    <div
+      className="relative select-none inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+      aria-hidden
+    >
+      {/* Softer background glow — no border, no clipping */}
+      <div
+        className="pointer-events-none absolute"
+        style={{
+          width: glowSize,
+          height: glowSize,
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle at 50% 55%, rgba(255,140,0,.22), rgba(255,140,0,.06) 60%, rgba(255,140,0,0) 80%)",
+          filter: "blur(6px)",
+        }}
+      />
+
+      {/* Logo with lighter edge glow */}
+      <img
+        src={logo}
+        alt=""
+        draggable="false"
+        className="object-contain"
+        style={{
+          width: size,
+          height: size,
+          filter:
+            "drop-shadow(0 0 6px rgba(255,140,0,.35)) drop-shadow(0 0 14px rgba(255,140,0,.22))",
+          imageRendering: "auto",
+        }}
       />
     </div>
   );
 }
 
-/* short, tasteful scramble */
+/* ===== helpers ===== */
 function ScrambleTextOnMount({
   text,
   className = "",

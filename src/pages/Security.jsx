@@ -22,9 +22,19 @@ export default function Security() {
       <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
         {/* Local keyframes */}
         <style>{`
-          @keyframes ticker { 0% {transform:translateX(0)} 100% {transform:translateX(-50%)} }
-          @keyframes scan { 0% {left:0} 100% {left:100%} }
-          @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+          /* Seamless marquee: translate by the full width of one copy (-100%) */
+          @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+          @keyframes scan { 0% { left:0 } 100% { left:100% } }
+
+          /* Bounce the underline cursor between ends of the measured rail */
+          @keyframes pong {
+            from { transform: translateX(0); }
+            to   { transform: translateX(var(--maxX)); }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
+          }
         `}</style>
 
         {/* Top terminal strip */}
@@ -58,7 +68,7 @@ export default function Security() {
                   Statement
                 </div>
 
-                {/* Scrambles ~2s on every mount (i.e., whenever you enter the page) */}
+                {/* Scrambles ~2s on every mount */}
                 <ScrambleTextOnMount
                   text="TRUST WITHOUT DRAMA"
                   className="leading-[0.92] font-semibold mt-2"
@@ -71,6 +81,10 @@ export default function Security() {
 
                 <p className="mt-3 text-sm max-w-prose">
                   Your content stays yours. Clear controls. Predictable results.
+                  <span className="block mt-1">
+                    <strong>Security and privacy are the product</strong> — not
+                    a feature gate.
+                  </span>
                 </p>
               </div>
 
@@ -94,7 +108,7 @@ export default function Security() {
               <Stamp label="Last Updated">
                 <Today />
               </Stamp>
-              <Stamp label="Environment">Cloud or your VPC</Stamp>
+              <Stamp label="Priority">Privacy-first by default</Stamp>
             </div>
 
             {/* Ticker */}
@@ -107,16 +121,19 @@ export default function Security() {
         {/* CARDS */}
         <div className={`mt-6 grid grid-cols-12 gap-0 border ${bx}`}>
           <Card title="Data" r>
-            • You own your data. <br />• Not used to train models. <br />•
-            Export or delete on request.
+            • <strong>You own your data</strong> — always. <br />• Not used to
+            train models without explicit consent. <br />• One-click{" "}
+            <strong>export</strong> or <strong>deletion</strong>.
           </Card>
           <Card title="Access" r>
-            • SSO & simple roles. <br />• Least-privilege by default. <br />•
-            Clean, readable logs.
+            • <strong>SSO</strong> & clean roles. <br />•{" "}
+            <strong>Least-privilege</strong> by default. <br />•{" "}
+            <strong>Readable audit logs</strong> for every action.
           </Card>
           <Card title="Protection">
-            • Encrypted in transit & at rest. <br />• Backups & key rotation.{" "}
-            <br />• Region aware.
+            • <strong>Encryption in transit & at rest</strong>. <br />•{" "}
+            <strong>Backups</strong>, key rotation, scoped keys. <br />•{" "}
+            <strong>Data residency</strong> by region.
           </Card>
         </div>
 
@@ -135,6 +152,7 @@ export default function Security() {
               <Chip>Data Residency</Chip>
               <Chip>Export</Chip>
               <Chip>Deletion</Chip>
+              <Chip>Privacy by Default</Chip>
             </div>
           </div>
         </div>
@@ -143,19 +161,19 @@ export default function Security() {
         <div className={`mt-6 grid grid-cols-12 gap-0 border ${bx}`}>
           <LedgerRow
             a="Retention"
-            b="You choose how long to keep. Default is minimal."
+            b="Minimal by default. You choose durations — we adhere."
           />
           <LedgerRow
             a="Sharing"
-            b="Nothing shared unless you choose it. No surprises."
+            b="No sharing unless you say so. No hidden processors."
           />
           <LedgerRow
             a="Models"
-            b="Use ours or yours. Same guardrails either way."
+            b="Use ours or yours. Same guardrails and privacy stance either way."
           />
           <LedgerRow
             a="Reviews"
-            b="Quick exports for legal or security checks."
+            b="Instant exports for legal/security. Transparent, verifiable logs."
           />
         </div>
 
@@ -169,7 +187,7 @@ export default function Security() {
               Request security brief <span>↗</span>
             </a>
             <div className="mt-2 text-xs opacity-70">
-              One page. Plain language.
+              One page. Plain language. Privacy-first.
             </div>
           </div>
         </div>
@@ -408,21 +426,71 @@ function scrambleSeed(target, chaos) {
   return s;
 }
 
-/* ARCHV • AI • TRUST kinetic line */
+/* ARCHV • AI • TRUST kinetic line (pong bounce underline; perfectly stops at TRUST) */
 function TrustKinetics() {
   const { theme } = useTheme();
   const tone = theme === "dark" ? "text-white/80" : "text-black/80";
+
+  const labelRef = React.useRef(null);
+  const trustRef = React.useRef(null);
+  const [vars, setVars] = React.useState({ railW: 0, cursorW: 0 });
+
+  // Measure widths on mount & on resize
+  React.useEffect(() => {
+    const measure = () => {
+      if (!labelRef.current || !trustRef.current) return;
+      const railW = Math.round(labelRef.current.getBoundingClientRect().width);
+      const cursorW = Math.round(
+        trustRef.current.getBoundingClientRect().width
+      );
+      setVars({ railW, cursorW });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (labelRef.current) ro.observe(labelRef.current);
+    if (trustRef.current) ro.observe(trustRef.current);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  const styleVars = {
+    // px values into CSS variables
+    ["--railW"]: `${vars.railW}px`,
+    ["--cursorW"]: `${vars.cursorW}px`,
+    ["--maxX"]: `calc(var(--railW) - var(--cursorW))`,
+  };
+
   return (
-    <div className={`relative inline-block font-mono ${tone} select-none`}>
-      <div className="text-xs tracking-[0.35em] pr-6">
+    <div
+      className={`relative inline-block font-mono ${tone} select-none`}
+      style={styleVars}
+    >
+      {/* Text (no padding that could skew width) */}
+      <div ref={labelRef} className="text-xs tracking-[0.35em]">
         ARCHV <span className="inline-block">•</span> AI{" "}
-        <span className="inline-block">•</span> TRUST
+        <span className="inline-block">•</span>{" "}
+        <span ref={trustRef} className="inline-block">
+          TRUST
+        </span>
       </div>
-      <div className="relative h-[2px] mt-1 opacity-40">
+
+      {/* Underline rail exactly the width of the text line */}
+      <div
+        className="relative h-[2px] mt-1 opacity-40"
+        style={{ width: "var(--railW)" }}
+      >
         <div className="absolute inset-0 bg-current/30" />
+        {/* Cursor: bounces between 0 and (railW - cursorW); no bleed past TRUST */}
         <div
-          className="absolute top-0 h-[2px] w-10 bg-current"
-          style={{ animation: "scan 1.8s linear infinite" }}
+          className="absolute top-0 h-[2px] bg-current will-change-transform"
+          style={{
+            width: "var(--cursorW)",
+            transform: "translateX(0)",
+            animation: "pong 2.2s linear infinite alternate",
+          }}
           aria-hidden
         />
       </div>
@@ -430,30 +498,42 @@ function TrustKinetics() {
   );
 }
 
-/* Ticker bar */
+/* Ticker bar (seamless) */
 function TickerBar() {
   const { theme } = useTheme();
   const dim = theme === "dark" ? "text-white/70" : "text-black/70";
   const [chunks, setChunks] = React.useState(() => makeTickerRow());
+
   React.useEffect(() => {
     const id = setInterval(() => setChunks(makeTickerRow()), 8000);
     return () => clearInterval(id);
   }, []);
+
   const content = chunks.join("    •    ");
+
   return (
     <div
       className={`overflow-hidden border border-current/10 font-mono text-[11px] ${dim}`}
+      style={{
+        WebkitMaskImage:
+          "linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent)",
+        maskImage:
+          "linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent)",
+      }}
     >
+      {/* Two identical copies (A + B). Translate by -100% for a seamless loop. */}
       <div
-        className="whitespace-nowrap"
+        className="whitespace-nowrap flex"
         style={{
+          width: "max-content",
           animation: "ticker 30s linear infinite",
           willChange: "transform",
-          padding: "6px 0",
         }}
       >
         <span className="px-3">{content}</span>
-        <span className="px-3">{content}</span>
+        <span className="px-3" aria-hidden>
+          {content}
+        </span>
       </div>
     </div>
   );
@@ -475,6 +555,7 @@ function makeTickerRow() {
     `rbac:clean`,
     `enc:tls1.3`,
     `vault:${rnd(5)}`,
+    `privacy:first`,
   ];
   return items.sort(() => 0.5 - Math.random());
 }

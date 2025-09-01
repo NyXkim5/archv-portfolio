@@ -12,25 +12,18 @@ export default function Platform() {
     ? "border-black/15 dark:border-white/15"
     : "border-black/15";
 
-  // ✅ Your actual file
-  const videoUrl = new URL(
-    "../assets/3196061-uhd_3840_2160_25fps.mp4",
-    import.meta.url
-  ).href;
-
   return (
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
     >
-      {/* Same header everywhere */}
+      {/* Shared header */}
       <Nav />
 
-      {/* MAIN — same horizontal paddings as other pages for seamless nav line */}
-      <main className="flex-1 w-full mx-0 px-6 md:px-8 py-5 relative">
-        {/* hairline to visually continue the header rule */}
+      {/* MAIN — match Security page paddings */}
+      <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
         <div className="mt-2 border-b border-current/10" />
 
-        {/* local styles (glitch) */}
+        {/* local styles (glitch helpers) */}
         <style>{`
           @keyframes archv-glitchA {
             0% { transform: translate(0,0); clip-path: inset(0 0 75% 0) }
@@ -55,7 +48,7 @@ export default function Platform() {
           }
         `}</style>
 
-        {/* Hero row */}
+        {/* HERO */}
         <section className="mt-8 grid grid-cols-12 gap-6 lg:gap-10">
           {/* Left — copy */}
           <div className="col-span-12 lg:col-span-7">
@@ -67,7 +60,7 @@ export default function Platform() {
               designed to make teams faster without the drama.
             </p>
 
-            {/* key bullets */}
+            {/* Key bullets */}
             <div className="mt-6 grid grid-cols-12 gap-4">
               <Feature
                 title="Private by default"
@@ -98,9 +91,9 @@ export default function Platform() {
             </div>
           </div>
 
-          {/* Right — video (cropped nicely) + glitch phrases */}
+          {/* Right — video + rotating tagline */}
           <div className="col-span-12 lg:col-span-5">
-            <VideoPanel src={videoUrl} />
+            <VideoPanel />
             <div className="mt-3">
               <GlitchRotator
                 phrases={[
@@ -116,7 +109,7 @@ export default function Platform() {
           </div>
         </section>
 
-        {/* mid divider */}
+        {/* Divider */}
         <div className={`mt-10 border-t ${bx}`} />
 
         {/* Simple spec row */}
@@ -161,21 +154,31 @@ function Spec({ label, value }) {
   );
 }
 
-/** Responsive, nicely-cropped video panel (object-cover) */
-function VideoPanel({ src, poster }) {
+/** Uses your Pexels link (remote) with an optional local fallback */
+function VideoPanel() {
+  const poster = "/assets/archv-thumb.jpg";
+  const remote = "https://www.pexels.com/download/video/3196061/"; // your link
+  const localFallback = "/assets/3196061-uhd_3840_2160_25fps.mp4"; // if you add it later
+
   return (
     <div className="relative overflow-hidden border border-current/10 bg-black/5 dark:bg-white/5 h-[520px] md:h-[620px]">
       <video
-        src={src}
-        poster={poster}
         className="absolute inset-0 w-full h-full object-cover"
-        playsInline
+        poster={poster}
         autoPlay
         muted
         loop
+        playsInline
         preload="metadata"
-      />
-      {/* subtle top/bottom fade so the crop feels intentional */}
+        // controls // ← uncomment to verify playback
+        onError={(e) => console.error("Video failed:", e.currentTarget.error)}
+      >
+        <source src={remote} type="video/mp4" />
+        <source src={localFallback} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      {/* soft fades */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-current/10 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-current/10 to-transparent" />
     </div>
@@ -198,9 +201,10 @@ function GlitchRotator({ phrases = [], intervalMs = 2600 }) {
     const cycler = setInterval(() => {
       if (!prefersReduced) {
         setGlitch(true);
-        timer = window.setTimeout(() => {
-          setI((n) => (n + 1) % phrases.length);
-        }, 150);
+        timer = window.setTimeout(
+          () => setI((n) => (n + 1) % phrases.length),
+          150
+        );
         window.setTimeout(() => setGlitch(false), 320);
       } else {
         setI((n) => (n + 1) % phrases.length);

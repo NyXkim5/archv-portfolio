@@ -7,10 +7,6 @@ export default function Login() {
   const { theme } = useTheme();
   const t = useTokens(theme);
 
-  // TODO: point this to your real IdP or console login
-  const portalURL =
-    import.meta.env.VITE_PORTAL_URL || "https://example.com/login";
-
   return (
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
@@ -31,12 +27,16 @@ export default function Login() {
             </p>
 
             <div className="mt-6 grid gap-3">
-              <a
-                href={portalURL}
+              <button
+                onClick={() =>
+                  alert(
+                    "Archv is in demo stages. Please contact us for a demo."
+                  )
+                }
                 className="inline-flex items-center justify-center w-full px-4 py-2 border border-current/30 hover:bg-black/5 dark:hover:bg-white/10 transition"
               >
-                Continue to login portal ↗
-              </a>
+                In demo stages — contact us for a demo ↗
+              </button>
               <a
                 href="mailto:hello@archv.ai?subject=Login%20help%20%E2%80%94%20Archv"
                 className="inline-flex items-center justify-center w-full px-4 py-2 underline underline-offset-4 hover:no-underline"
