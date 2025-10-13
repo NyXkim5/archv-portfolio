@@ -1,13 +1,17 @@
-// src/pages/Home.jsx
 import React from "react";
 import Nav from "../components/Nav.jsx";
 import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
 
-// ✅ Logos
+// Logos
 import logoSvg from "../assets/ARCHV (2).svg";
 
-// ✅ Lucide icons for socials
-import { Linkedin, Instagram, Music2 } from "lucide-react";
+// Socials (LinkedIn only)
+import { Linkedin } from "lucide-react";
+
+// Side product drawer
+import SideProductum, {
+  SideProductumStyles,
+} from "../components/SideProductum.jsx";
 
 export default function Home() {
   const { theme } = useTheme();
@@ -28,15 +32,21 @@ export default function Home() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 lg:col-span-6">
               <h1 className="text-[34px] sm:text-[40px] md:text-[48px] leading-[1.05] font-medium tracking-tight">
-                Archv AI
+                Archv
               </h1>
               <p className="mt-3 max-w-[56ch] text-sm sm:text-[15px] opacity-80">
-                Calm software for real work—private by default, simple to run,
-                and designed to make teams faster without the drama.
+                We are a security-first company and everything we build is
+                designed around that principle. Every access, query, and change
+                is logged in detail with full audit trails. You decide the
+                retention policies, the level of granularity, and the reporting
+                you require. Whether you need lightweight visibility or
+                enterprise-grade compliance logs, we cater to your needs and
+                provide a verifiable record of who did what, when, and from
+                where
               </p>
             </div>
             <div className="col-span-12 lg:col-span-6 flex items-start justify-end">
-              {/* (optional right HUD / time) */}
+              {/* placeholder for optional HUD/right side */}
             </div>
           </div>
         </header>
@@ -52,7 +62,7 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] tracking-wide opacity-70 gap-3">
           <span>© {new Date().getFullYear()} Archv</span>
 
-          {/* ✅ Social links */}
+          {/* Social links (LinkedIn only) */}
           <div className="flex items-center gap-4 opacity-80">
             <a
               href="https://www.linkedin.com/company/archvai"
@@ -63,29 +73,15 @@ export default function Home() {
             >
               <Linkedin className="w-6 h-6" />
             </a>
-            <a
-              href="https://www.instagram.com/archvofficial/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-100 transition"
-              aria-label="Instagram"
-            >
-              <Instagram className="w-6 h-6" />
-            </a>
-            <a
-              href="https://www.tiktok.com/@archvstudios?lang=en"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-100 transition"
-              aria-label="TikTok"
-            >
-              <Music2 className="w-6 h-6" />
-            </a>
           </div>
 
-          <span>design iteration 2</span>
+          <span className="design-iteration">design iteration 9</span>
         </div>
       </footer>
+
+      {/* Product button + styles */}
+      <SideProductum />
+      <SideProductumStyles />
     </div>
   );
 }
@@ -160,6 +156,14 @@ function StyleFlickerAndPulse() {
         image-rendering: auto;
         animation: sherbetPulse 2.8s ease-in-out infinite;
         will-change: filter, opacity, transform;
+      }
+
+      .design-iteration {
+        animation: iterationGlow 3.5s infinite ease-in-out;
+      }
+      @keyframes iterationGlow {
+        0%, 100% { color: rgba(255,106,0,.6); text-shadow: 0 0 4px rgba(255,106,0,.35); }
+        50% { color: rgba(255,106,0,1); text-shadow: 0 0 8px rgba(255,106,0,.6); }
       }
 
       @media (prefers-reduced-motion: reduce) {

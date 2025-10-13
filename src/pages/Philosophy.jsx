@@ -3,479 +3,639 @@ import React from "react";
 import Nav from "../components/Nav.jsx";
 import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
 
-export default function Philosophy() {
-  const { theme } = useTheme();
-  const t = useTokens(theme);
-  const isDark = theme === "dark";
-  const bx = isDark ? "border-white/20" : "border-black/20";
-  const mute = isDark ? "text-white/60" : "text-black/60";
-  const poster = new URL("../assets/ARCHV (4).png", import.meta.url).href;
-
-  return (
-    <div
-      className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
-    >
-      <Nav />
-
-      <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
-        <style>{`
-          @keyframes scan { 0% { left: 0 } 100% { left: 100% } }
-          @keyframes fadeUp { 0% { opacity:.0; transform: translateY(6px)} 100% { opacity:1; transform: translateY(0)} }
-          /* ping–pong motion that stops exactly at --maxX */
-          @keyframes pong { from { transform: translateX(0) } to { transform: translateX(var(--maxX)) } }
-          @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important } }
-        `}</style>
-
-        <SideLabel side="left" text="PHILOSOPHY" offsetTop="70%" />
-        <SideLabel side="right" text="ARCHV / AI" offsetTop="70%" />
-
-        {/* Masthead */}
-        <header className="mt-6 border-b border-current/20 pb-3 flex flex-wrap gap-3 items-end justify-between">
-          <h1 className="text-3xl sm:text-4xl tracking-tight leading-none break-words">
-            ARCHV — Philosophy
-          </h1>
-
-          <div className="min-w-[220px]">
-            {/* inline-block so width === actual text width */}
-            <span
-              id="motto-label"
-              className={`${mute} text-[11px] tracking-[0.22em] uppercase inline-block`}
-            >
-              <ScrambleTextOnMount
-                text="Simple • Quiet • True"
-                durationMs={900}
-              />
-            </span>
-            {/* Pong underline that ends at TRUE and bounces back */}
-            <PongUnderline targetId="motto-label" cursorText="TRUE" />
-          </div>
-        </header>
-
-        {/* Editorial grid */}
-        <section className="grid grid-cols-12 gap-6 lg:gap-10 mt-6">
-          {/* LEFT */}
-          <aside className="col-span-12 md:col-span-3 order-2 md:order-1">
-            <div className="md:sticky md:top-6 space-y-6">
-              <MiniMenu />
-              <div className="border-t border-current/20 pt-4 space-y-2 text-sm leading-relaxed">
-                <p className={`${mute}`}>
-                  We design for calm: fewer choices, better defaults, motion
-                  only when it helps.
-                </p>
-                <p className={`${mute}`}>
-                  Our product shouldn’t shout. Your work is the headline.
-                </p>
-              </div>
-            </div>
-          </aside>
-
-          {/* CENTER */}
-          <figure className="col-span-12 md:col-span-6 order-1 md:order-2">
-            <div
-              className={`border ${bx} bg-white dark:bg-black overflow-hidden mx-auto`}
-              style={{
-                maxHeight: "56vh",
-                maxWidth: "560px",
-                width: "100%",
-                display: "grid",
-                placeItems: "center",
-                padding: "10px",
-                animation: "fadeUp .4s ease-out both",
-              }}
-            >
-              <img
-                src={poster}
-                alt="Archv editorial poster"
-                className="w-full h-auto object-contain select-none"
-                style={{
-                  imageRendering: "auto",
-                  containIntrinsicSize: "900px 1200px",
-                }}
-                loading="eager"
-                decoding="async"
-                draggable="false"
-              />
-            </div>
-            <figcaption className="flex flex-wrap items-center justify-between gap-2 text-xs mt-2">
-              <span className={`${mute}`}>Poster — internal draft</span>
-              <span className="tracking-[0.22em] uppercase whitespace-nowrap">
-                Design iteration 2
-              </span>
-            </figcaption>
-          </figure>
-
-          {/* RIGHT */}
-          <aside className="col-span-12 md:col-span-3 order-3">
-            <div className="flex flex-col items-start gap-6">
-              <div className="flex flex-col sm:flex-row items-start gap-4">
-                <LogoGlowBadge size={112} />
-                <RotatingQuote
-                  quotes={[
-                    "We fix the messy parts so teams can think.",
-                    "We remove friction so good work moves faster.",
-                    "We turn noise into simple, useful answers.",
-                  ]}
-                  intervalMs={10000}
-                />
-              </div>
-              <Block title="Tone">
-                Plain. Considerate. Evidence-led. No fluff.
-              </Block>
-              <Block title="Pace">
-                Small, steady releases. Real docs. Rollback &gt; heroics.
-              </Block>
-              <Block title="Trust">
-                Clear permissions. Answers with sources. Your data stays yours.
-              </Block>
-            </div>
-          </aside>
-        </section>
-
-        {/* Ledger */}
-        <section className={`mt-10 border-y ${bx}`}>
-          <LedgerRow label="Scope" value="Do less, do it well." />
-          <LedgerRow label="Defaults" value="Safe, quiet, reversible." />
-          <LedgerRow
-            label="Failure"
-            value="Make it visible, make it recoverable."
-          />
-          <LedgerRow label="Credit" value="Credit the team, not the tool." />
-        </section>
-
-        {/* CTA */}
-        <div className="py-6 flex items-center justify-center">
-          <a
-            href="/contact"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-current hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition"
-          >
-            Talk to Archv <span>↗</span>
-          </a>
-        </div>
-
-        <footer className={`border-t ${bx} pt-3 text-[11px] ${mute}`}>
-          © Archv AI — design iteration 2
-        </footer>
-      </main>
-    </div>
-  );
-}
-
-/* ——— components ——— */
-
-function SideLabel({ side = "left", text, offsetTop = "70%" }) {
-  return (
-    <div
-      className="hidden xl:block pointer-events-none select-none"
-      style={{
-        position: "fixed",
-        top: offsetTop,
-        [side]: "12px",
-        transform:
-          side === "left"
-            ? "translateY(-50%) rotate(-90deg)"
-            : "translateY(-50%) rotate(90deg)",
-        zIndex: 0,
-        opacity: 0.6,
-      }}
-      aria-hidden
-    >
-      <span className="text-[11px] tracking-[0.32em] uppercase">{text}</span>
-    </div>
-  );
-}
-
-function MiniMenu() {
-  const items = [
-    "Simplicity",
-    "Clarity",
-    "Respect",
-    "Quality",
-    "Receipts",
-    "Calm UI",
-    "Good defaults",
-    "Privacy-first",
-  ];
-  return (
-    <ul className="text-[13px] leading-6 space-y-1">
-      {items.map((it) => (
-        <li
-          key={it}
-          className="flex items-center justify-between border-b border-current/10 group"
-        >
-          <span className="py-1 pr-3">{it}</span>
-          <span className="text-[11px] opacity-40 group-hover:opacity-100 transition">
-            →
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function RotatingQuote({ quotes, intervalMs = 10000 }) {
-  const prefersReduced =
-    typeof window !== "undefined" &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+/* ---------- Rotating headline next to Archv, width-stable ---------- */
+function RotatingHeadlineStable({
+  words = [],
+  className = "",
+  accentClass = "",
+  intervalMs = 2100,
+}) {
   const [index, setIndex] = React.useState(0);
-  const [fadeIn, setFadeIn] = React.useState(true);
-  const [remaining, setRemaining] = React.useState(intervalMs);
-
-  React.useEffect(() => {
-    if (!quotes || quotes.length < 2 || prefersReduced) return;
-
-    let cycleStart = Date.now();
-
-    const countdown = setInterval(() => {
-      const elapsed = Date.now() - cycleStart;
-      const rem = Math.max(0, intervalMs - (elapsed % intervalMs));
-      setRemaining(rem);
-    }, 100);
-
-    const step = () => {
-      setFadeIn(false);
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % quotes.length);
-        cycleStart = Date.now();
-        setRemaining(intervalMs);
-        setFadeIn(true);
-      }, 250);
-    };
-
-    const cycler = setInterval(step, intervalMs);
-
-    return () => {
-      clearInterval(cycler);
-      clearInterval(countdown);
-    };
-  }, [quotes, intervalMs, prefersReduced]);
-
-  const current = quotes?.[index] ?? "";
-  const pct = Math.max(0, Math.min(100, (remaining / intervalMs) * 100));
-  const secs = Math.ceil(remaining / 1000);
-
-  return (
-    <div className="min-w-[220px] max-w-[280px] border border-current/20 px-3 py-3">
-      <blockquote
-        className={`text-sm leading-relaxed transition-opacity duration-300 ${
-          !prefersReduced && fadeIn
-            ? "opacity-100"
-            : prefersReduced
-            ? "opacity-100"
-            : "opacity-0"
-        }`}
-      >
-        “{current}”
-      </blockquote>
-      <div className="mt-2 flex items-center gap-2">
-        <div className="h-[2px] flex-1 bg-current/15 overflow-hidden">
-          <div
-            className="h-[2px] bg-current"
-            style={{ width: `${pct}%`, transition: "width 0.1s linear" }}
-          />
-        </div>
-        <span className="text-[10px] opacity-60 tabular-nums">{secs}s</span>
-      </div>
-      <div className="mt-1 text-[11px] tracking-[0.22em] uppercase opacity-60 text-right">
-        — Archv
-      </div>
-    </div>
-  );
-}
-
-function Block({ title, children }) {
-  return (
-    <div className="border border-current/20 px-3 py-3 w-full">
-      <div className="text-[11px] tracking-[0.22em] uppercase opacity-60 mb-2">
-        {title}
-      </div>
-      <div className="text-sm leading-relaxed">{children}</div>
-    </div>
-  );
-}
-
-function LedgerRow({ label, value }) {
-  return (
-    <div className="grid grid-cols-12">
-      <div className="col-span-12 md:col-span-4 border-r border-current/20 p-3 md:p-4 text-[11px] tracking-[0.22em] uppercase">
-        {label}
-      </div>
-      <div className="col-span-12 md:col-span-8 p-3 md:p-4 text-lg md:text-xl">
-        {value}
-      </div>
-    </div>
-  );
-}
-
-/* ===== PONG underline (measured; no spill) ===== */
-function PongUnderline({ targetId, cursorText = "TRUE" }) {
+  const [phase, setPhase] = React.useState("in");
+  const wrapRef = React.useRef(null);
   const measureRef = React.useRef(null);
-  const [vars, setVars] = React.useState({ railW: 0, cursorW: 0 });
+  const [width, setWidth] = React.useState(null);
 
   React.useEffect(() => {
     const measure = () => {
-      const labelEl = document.getElementById(targetId);
-      if (!labelEl || !measureRef.current) return;
-
-      // clamp to whole pixels to avoid half-pixel overshoot
-      const railW = Math.floor(labelEl.getBoundingClientRect().width);
-      const cursorW = Math.ceil(
-        measureRef.current.getBoundingClientRect().width
+      if (!measureRef.current) return;
+      const kids = Array.from(measureRef.current.children || []);
+      const w = Math.ceil(
+        kids.reduce((m, el) => Math.max(m, el.getBoundingClientRect().width), 0)
       );
-      setVars({ railW, cursorW });
+      setWidth(w || null);
     };
-
     measure();
     const ro = new ResizeObserver(measure);
-    const el = document.getElementById(targetId);
-    if (el) ro.observe(el);
+    if (wrapRef.current) ro.observe(wrapRef.current);
     window.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [targetId]);
-
-  const styleVars = {
-    ["--railW"]: `${vars.railW}px`,
-    ["--cursorW"]: `${vars.cursorW}px`,
-    ["--fudge"]: "1px",
-    ["--maxX"]: `calc(var(--railW) - var(--cursorW) - var(--fudge))`,
-  };
-
-  return (
-    <>
-      {/* Hidden measurer for the word using identical typography */}
-      <span
-        ref={measureRef}
-        className="absolute opacity-0 pointer-events-none select-none text-[11px] tracking-[0.22em] uppercase"
-        aria-hidden
-      >
-        {cursorText}
-      </span>
-
-      {/* Rail width equals label width; overflow prevents bleed */}
-      <div
-        className="relative h-[2px] mt-1 opacity-40 overflow-hidden"
-        style={{ width: "var(--railW)", ...styleVars }}
-      >
-        <div className="absolute inset-0 bg-current/20" />
-        <div
-          className="absolute top-0 h-[2px] bg-current will-change-transform"
-          style={{
-            width: "var(--cursorW)",
-            animation: "pong 2.2s linear infinite alternate",
-          }}
-          aria-hidden
-        />
-      </div>
-    </>
-  );
-}
-
-/* ===== Logo with *subtle* orange glow (no black oval; bigger image) ===== */
-function LogoGlowBadge({ size = 112 }) {
-  // Use your existing logo asset (same one used on Security page)
-  const logo = new URL("../assets/ARCHV (1).png", import.meta.url).href;
-  const glowSize = Math.round(size * 1.5); // softer & smaller halo than before
-
-  return (
-    <div
-      className="relative select-none inline-flex items-center justify-center"
-      style={{ width: size, height: size }}
-      aria-hidden
-    >
-      {/* Softer background glow — no border, no clipping */}
-      <div
-        className="pointer-events-none absolute"
-        style={{
-          width: glowSize,
-          height: glowSize,
-          left: "50%",
-          top: "50%",
-          transform: "translate(-50%, -50%)",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle at 50% 55%, rgba(255,140,0,.22), rgba(255,140,0,.06) 60%, rgba(255,140,0,0) 80%)",
-          filter: "blur(6px)",
-        }}
-      />
-
-      {/* Logo with lighter edge glow */}
-      <img
-        src={logo}
-        alt=""
-        draggable="false"
-        className="object-contain"
-        style={{
-          width: size,
-          height: size,
-          filter:
-            "drop-shadow(0 0 6px rgba(255,140,0,.35)) drop-shadow(0 0 14px rgba(255,140,0,.22))",
-          imageRendering: "auto",
-        }}
-      />
-    </div>
-  );
-}
-
-/* ===== helpers ===== */
-function ScrambleTextOnMount({
-  text,
-  className = "",
-  style,
-  durationMs = 900,
-  chaos = "!<>-_\\/[]{}—=+*^?#_0123456789",
-}) {
-  const prefersReduced =
-    typeof window !== "undefined" &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const initialScramble = React.useMemo(
-    () => (prefersReduced ? text : seed(text, chaos)),
-    [text, chaos, prefersReduced]
-  );
-  const [out, setOut] = React.useState(initialScramble);
+  }, []);
 
   React.useEffect(() => {
-    if (prefersReduced) return;
-    const start = performance.now();
-    const chars = chaos.split("");
-    let raf = 0;
+    if (words.length < 2) return;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
 
-    const tick = (now) => {
-      const t = Math.min(1, (now - start) / durationMs);
-      const reveal = Math.floor(t * text.length);
-      let s = "";
-      for (let i = 0; i < text.length; i++) {
-        s +=
-          i < reveal
-            ? text[i]
-            : chars[(i + Math.floor((1 - t) * 50)) % chars.length];
-      }
-      setOut(s);
-      if (t < 1) raf = requestAnimationFrame(tick);
-      else setOut(text);
+    let to = null;
+    const id = window.setInterval(() => {
+      setPhase("out");
+      to = window.setTimeout(() => {
+        setIndex((n) => (n + 1) % words.length);
+        setPhase("in");
+      }, 260);
+    }, intervalMs);
+    return () => {
+      clearInterval(id);
+      if (to) clearTimeout(to);
     };
+  }, [words, intervalMs]);
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [text, durationMs, chaos, prefersReduced]);
+  const w = words[index] || { text: "", lang: "en" };
 
   return (
-    <span className={className} style={style}>
-      {out}
+    <span
+      ref={wrapRef}
+      style={{
+        display: "inline-block",
+        width: width ? `${width}px` : undefined,
+      }}
+      className={className}
+    >
+      <span
+        className={phase === "in" ? "rot-in" : "rot-out"}
+        lang={w.lang}
+        dir="auto"
+      >
+        <span className={accentClass}>{w.text}</span>
+      </span>
+
+      {/* hidden measurer for width stability */}
+      <span
+        ref={measureRef}
+        aria-hidden
+        style={{
+          position: "absolute",
+          visibility: "hidden",
+          pointerEvents: "none",
+          opacity: 0,
+          whiteSpace: "nowrap",
+        }}
+        className={className}
+      >
+        {words.map((m, i) => (
+          <span key={i} className={accentClass} style={{ display: "block" }}>
+            {m.text}
+          </span>
+        ))}
+      </span>
     </span>
   );
 }
 
-function seed(target, chaos) {
-  const chars = chaos.split("");
-  let s = "";
-  for (let i = 0; i < target.length; i++) {
-    s += target[i] === " " ? " " : chars[(i * 7) % chars.length];
-  }
-  return s;
+/* ---------- primitives ---------- */
+function Mono({ children, className = "" }) {
+  return (
+    <div className={`font-mono tracking-[0.12em] uppercase ${className}`}>
+      {children}
+    </div>
+  );
+}
+function Rule() {
+  return <div className="h-px w-full bg-black/10" />;
+}
+function BounceRule({ cursorWidth = 160 }) {
+  return (
+    <div className="relative h-[2px] w-full bg-black/10 overflow-hidden">
+      <div
+        className="absolute inset-y-0 left-0 bg-gradient-to-r from-transparent via-[#ff6a00] to-transparent opacity-80 animate-pingpong"
+        style={{ width: `${cursorWidth}px`, ["--cursorW"]: `${cursorWidth}px` }}
+      />
+    </div>
+  );
+}
+function Sheet({ children, className = "" }) {
+  return (
+    <article
+      className={`bg-white border border-black/10 rounded-[12px] shadow-sm overflow-hidden ${className}`}
+    >
+      {children}
+    </article>
+  );
+}
+function SpecRow({ label, value }) {
+  return (
+    <div className="grid grid-cols-12">
+      <div className="col-span-5 md:col-span-4 py-2 pr-3 border-b border-black/10 font-mono text-[11px] tracking-[0.08em] uppercase opacity-70">
+        {label}
+      </div>
+      <div className="col-span-7 md:col-span-8 py-2 border-b border-black/10 text-sm">
+        {value}
+      </div>
+    </div>
+  );
+}
+function Swatch({ color, name }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className="inline-block h-4 w-4 rounded-full ring-1 ring-black/10"
+        style={{ background: color }}
+      />
+      <span className="text-[12px] opacity-70">{name}</span>
+    </div>
+  );
+}
+
+/* ---------- media block ---------- */
+function MediaBlock({ src, alt = "", tone = "light" }) {
+  const [broken, setBroken] = React.useState(false);
+  const grad =
+    tone === "light"
+      ? "linear-gradient(135deg, rgba(255,106,0,0.06), rgba(0,0,0,0.04))"
+      : "linear-gradient(135deg, rgba(0,0,0,0.06), rgba(255,106,0,0.10))";
+
+  return (
+    <div className="relative overflow-hidden rounded-[10px] border border-black/10">
+      <div className="w-full" style={{ paddingTop: "66.666%" }} />
+      {!broken && (
+        <img
+          src={src}
+          alt={alt}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          onError={() => setBroken(true)}
+        />
+      )}
+      {broken && (
+        <div className="absolute inset-0" style={{ background: grad }}>
+          <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full">
+            <circle
+              cx="32"
+              cy="62"
+              r="18"
+              fill="none"
+              stroke="black"
+              strokeOpacity="0.12"
+            />
+            <rect
+              x="56"
+              y="24"
+              width="30"
+              height="30"
+              rx="4"
+              fill="none"
+              stroke="black"
+              strokeOpacity="0.12"
+            />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- assets ---------- */
+const imgA = new URL("../assets/ARCHV (5).png", import.meta.url).href;
+const imgB = new URL("../assets/ARCHV (4).png", import.meta.url).href;
+
+/* ---------- page ---------- */
+export default function Philosophy() {
+  const { theme } = useTheme();
+  const t = useTokens(theme);
+
+  const words = [
+    { text: "Philosophy", lang: "en" },
+    { text: "철학", lang: "ko" },
+    { text: "Philosophie", lang: "fr" },
+    { text: "Filosofía", lang: "es" },
+    { text: "哲学", lang: "zh" },
+  ];
+
+  return (
+    <div className={`min-h-screen bg-white text-black ${t.font} flex flex-col`}>
+      {/* NAV — forced pure white background */}
+      <div className="relative z-30 isolate">
+        <div className="absolute inset-0 bg-white" aria-hidden />
+        <Nav />
+      </div>
+
+      {/* masthead */}
+      <header className="bg-white px-6 sm:px-10 md:px-14 lg:px-20 xl:px-24 pt-8 pb-5 border-b border-black/10 relative">
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <h1 className="text-[44px] sm:text-[56px] md:text-[64px] leading-[0.92] font-semibold tracking-tight flex items-baseline gap-4">
+            Archv
+            <RotatingHeadlineStable
+              words={words}
+              className="inline-block text-[40px] sm:text-[50px] md:text-[58px] font-semibold leading-none"
+              accentClass="text-[#ff6a00]"
+              intervalMs={2000}
+            />
+            <span
+              className="inline-block h-2 w-2 rounded-full bg-[#ff6a00] animate-pulse"
+              aria-hidden
+            />
+          </h1>
+          <div className="text-right">
+            <Mono className="text-[11px] opacity-70">Spec Sheet</Mono>
+            <div className="text-[12px] opacity-60">
+              {new Date().toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+        <div className="mt-3">
+          <BounceRule cursorWidth={160} />
+        </div>
+        <div className="mt-2 text-sm opacity-80">
+          <span className="text-[#ff6a00] font-medium">Client first</span> ·
+          Evidence led · Simple integration
+        </div>
+      </header>
+
+      <main className="flex-1 w-full mx-0 px-6 sm:px-10 md:px-14 lg:px-20 xl:px-24 py-8 space-y-8">
+        {/* Top philosophy sheet */}
+        <Sheet>
+          <div className="p-5 md:p-6">
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-12 lg:col-span-7">
+                <Mono className="text-[11px] opacity-70">Archv Philosophy</Mono>
+                <Rule />
+                <p className="text-sm md:text-[15px] leading-relaxed mt-3">
+                  Archv is a private operating layer for firms that live on
+                  evidence. Security and simple integration come first. Identity
+                  and permission lead every action. Each answer includes sources
+                  that a person can check and export. You choose the region and
+                  the keys. We never train on client data. We ship in steady
+                  steps that you can review. The goal is trust and speed at the
+                  same time.
+                </p>
+                <p className="text-sm md:text-[15px] leading-relaxed mt-3">
+                  We are setting a new standard of client care. Your comfort and
+                  your security are the priority. We listen and respond clearly.
+                  When you have an issue we take ownership and address it. Our
+                  role is to carry the complexity so your team can focus on the
+                  work that matters.
+                </p>
+              </div>
+
+              <div className="col-span-12 lg:col-span-5">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <Mono className="text-[11px] opacity-70">
+                      Non Negotiables
+                    </Mono>
+                    <Rule />
+                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
+                      <li>No training on client data</li>
+                      <li>Role based access with SSO or OIDC</li>
+                      <li>Region choice with clear residency</li>
+                      <li>Exportable logs and audit</li>
+                    </ul>
+
+                    {/* ——— LOADING SPINNER + two extra left blocks ——— */}
+                    <div className="mt-4 relative">
+                      <div
+                        className="loadingspinner"
+                        role="img"
+                        aria-label="Loading"
+                      >
+                        {/* NEW: static left tiles to balance the row */}
+                        <div id="squareL2"></div>
+                        <div id="squareL1"></div>
+
+                        {/* original animated set */}
+                        <div id="square1"></div>
+                        <div id="square2"></div>
+                        <div id="square3"></div>
+                        <div id="square4"></div>
+                        <div id="square5"></div>
+                      </div>
+                    </div>
+                    {/* ——— /LOADING SPINNER ——— */}
+                  </div>
+
+                  <div>
+                    <Mono className="text-[11px] opacity-70">Design</Mono>
+                    <Rule />
+                    <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
+                      <li>Quiet screens with visible state</li>
+                      <li>Recovery that is simple and clear</li>
+                      <li>Small releases you can review</li>
+                      <li>Evidence first answers</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Sheet>
+
+        {/* Twin sheets */}
+        <div className="grid grid-cols-12 gap-6 xl:gap-8">
+          {/* Sheet A */}
+          <Sheet className="col-span-12 lg:col-span-6">
+            <div className="p-5 md:p-6 grid grid-rows-[auto_auto_1fr] gap-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                    Design and Typography
+                  </h3>
+                  <Mono className="text-[12px] opacity-70 mt-1">D100</Mono>
+                </div>
+                <Mono className="text-[11px] opacity-70">
+                  Designer · Archv Team
+                </Mono>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <div className="col-span-12 md:col-span-6">
+                  <MediaBlock src={imgA} alt="Archv visual" tone="light" />
+                </div>
+                <div className="col-span-12 md:col-span-6">
+                  <p className="text-sm leading-relaxed">
+                    Our design philosophy is calm and legible. We design for
+                    reading first and action second. Evidence is visible in line
+                    with the answer so trust does not depend on guesswork.
+                    Orange marks intent and progress. It never decorates for its
+                    own sake. Components feel predictable and reversible. Copy
+                    is plain and respectful.
+                  </p>
+
+                  <div className="mt-4">
+                    <Mono className="text-[11px] opacity-70">
+                      Finishes · Signals
+                    </Mono>
+                    <Rule />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mt-2">
+                      <Swatch color="#ff6a00" name="Orange accent" />
+                      <Swatch color="#111111" name="Black" />
+                      <Swatch color="#e5e7eb" name="Light gray" />
+                      <Swatch color="#9ca3af" name="Medium gray" />
+                      <Swatch color="#ffffff" name="Paper white" />
+                      <Swatch color="#2563eb" name="Info blue" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* beliefs block */}
+              <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12 md:col-span-6">
+                  <Mono className="text-[11px] opacity-70">Principles</Mono>
+                  <Rule />
+                  <ul className="list-disc ml-5 text-sm mt-2 space-y-1">
+                    <li>Calm surfaces that reduce decision load</li>
+                    <li>Read first then act with clear next steps</li>
+                    <li>Receipts in line with every important result</li>
+                    <li>Defaults that respect risk and privacy</li>
+                    <li>Fewer choices with better outcomes</li>
+                    <li>Accessibility as a baseline not an option</li>
+                  </ul>
+                </div>
+
+                <div className="col-span-12 md:col-span-6">
+                  <Mono className="text-[11px] opacity-70">
+                    Beliefs · Simplicity and Brutalism
+                  </Mono>
+                  <Rule />
+                  <SpecRow
+                    label="Surface"
+                    value="Plain backgrounds with high contrast"
+                  />
+                  <SpecRow
+                    label="Structure"
+                    value="Clear grid with visible rhythm"
+                  />
+                  <SpecRow
+                    label="Action"
+                    value="Primary action is obvious and reversible"
+                  />
+                  <SpecRow
+                    label="Evidence"
+                    value="Citations live next to claims"
+                  />
+                  <SpecRow
+                    label="Material"
+                    value="Few styles and honest components"
+                  />
+                  <SpecRow label="Voice" value="Direct terms with zero fluff" />
+                </div>
+              </div>
+            </div>
+          </Sheet>
+
+          {/* Sheet B */}
+          <Sheet className="col-span-12 lg:col-span-6">
+            <div className="p-5 md:p-6 grid grid-rows-[auto_auto_1fr] gap-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                    Integration and Control
+                  </h3>
+                  <Mono className="text-[12px] opacity-70 mt-1">A200</Mono>
+                </div>
+                <Mono className="text-[11px] opacity-70">
+                  Designer · Archv Team
+                </Mono>
+              </div>
+
+              <div className="grid grid-cols-12 gap-5">
+                <div className="col-span-12 md:col-span-6 order-2 md:order-1">
+                  <p className="text-sm leading-relaxed">
+                    We respect the systems you use and the rules you follow. You
+                    can deploy in our cloud, in your VPC, or in an air gapped
+                    zone. Ownership is clear and progress is easy to review.
+                  </p>
+
+                  <div className="mt-4">
+                    <Mono className="text-[11px] opacity-70">
+                      Compatibility
+                    </Mono>
+                    <Rule />
+                    <div className="text-sm mt-2 opacity-80">
+                      Fits legal, banking, and health workflows. Works with
+                      standard identity and network controls.
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-12 md:col-span-6 order-1 md:order-2">
+                  <MediaBlock src={imgB} alt="Archv visual B" tone="dark" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-12 md:col-span-6">
+                  <Mono className="text-[11px] opacity-70">Specifications</Mono>
+                  <Rule />
+                  <SpecRow
+                    label="Deploy"
+                    value="Our cloud or your VPC or air gapped"
+                  />
+                  <SpecRow label="Egress" value="Allow list with logging" />
+                  <SpecRow
+                    label="Observability"
+                    value="Event logs and export"
+                  />
+                  <SpecRow
+                    label="Support"
+                    value="Steady releases you can review"
+                  />
+                </div>
+                <div className="col-span-12 md:col-span-6">
+                  <Mono className="text-[11px] opacity-70">Controls</Mono>
+                  <Rule />
+                  <SpecRow
+                    label="Roles"
+                    value="Least privilege with clear review"
+                  />
+                  <SpecRow label="Keys" value="Customer managed available" />
+                  <SpecRow label="Residency" value="Choice per tenant" />
+                  <SpecRow
+                    label="Interfaces"
+                    value="APIs and tools with receipts"
+                  />
+                </div>
+              </div>
+            </div>
+          </Sheet>
+        </div>
+      </main>
+
+      <footer className="w-full border-t border-current/10 py-3 px-6 md:px-8 text-[11px] opacity-70 flex items-center justify-between">
+        <span>© {new Date().getFullYear()} Archv</span>
+        <span>design iteration 2</span>
+      </footer>
+
+      {/* motion + spinner styles */}
+      <style>{`
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
+          @keyframes fadeOut { from { opacity: 1; transform: translateY(0) } to { opacity: 0; transform: translateY(-6px) } }
+          .rot-in { animation: fadeIn .26s ease-out both }
+          .rot-out { animation: fadeOut .26s ease-in both }
+          @keyframes pingpong {
+            0% { transform: translateX(0) }
+            100% { transform: translateX(calc(100% - var(--cursorW, 160px))) }
+          }
+          .animate-pingpong { animation: pingpong 2.6s linear infinite alternate }
+        }
+
+        /* ====== Loading spinner (brand orange) ====== */
+        .loadingspinner {
+          --square: 26px;
+          --offset: 30px;
+          --duration: 2.4s;
+          --delay: 0.2s;
+          --timing-function: ease-in-out;
+          --in-duration: 0.4s;
+          --in-delay: 0.1s;
+          --in-timing-function: ease-out;
+          width: calc( 3 * var(--offset) + var(--square));
+          height: calc( 2 * var(--offset) + var(--square));
+          padding: 0px;
+          margin-left: auto;
+          margin-right: auto;
+          margin-top: 10px;
+          margin-bottom: 30px;
+          position: relative;
+        }
+        .loadingspinner div {
+          display: inline-block;
+          background: #ff6a00; /* Archv orange */
+          border: none;
+          border-radius: 2px;
+          width: var(--square);
+          height: var(--square);
+          position: absolute;
+          padding: 0px;
+          margin: 0px;
+          font-size: 6pt;
+          color: black;
+        }
+
+        /* static left tiles to visually add two more blocks */
+        .loadingspinner #squareL2 { left: calc(-2 * var(--offset)); top: calc(1 * var(--offset)); }
+        .loadingspinner #squareL1 { left: calc(-1 * var(--offset));  top: calc(1 * var(--offset)); }
+
+        .loadingspinner #square1 {
+          left: calc( 0 * var(--offset) ); top: calc( 0 * var(--offset) );
+          animation: square1 var(--duration) var(--delay) var(--timing-function) infinite,
+                     squarefadein var(--in-duration) calc(1 * var(--in-delay)) var(--in-timing-function) both;
+        }
+        .loadingspinner #square2 {
+          left: calc( 0 * var(--offset) ); top: calc( 1 * var(--offset) );
+          animation: square2 var(--duration) var(--delay) var(--timing-function) infinite,
+                     squarefadein var(--in-duration) calc(1 * var(--in-delay)) var(--in-timing-function) both;
+        }
+        .loadingspinner #square3 {
+          left: calc( 1 * var(--offset) ); top: calc( 1 * var(--offset) );
+          animation: square3 var(--duration) var(--delay) var(--timing-function) infinite,
+                     squarefadein var(--in-duration) calc(2 * var(--in-delay)) var(--in-timing-function) both;
+        }
+        .loadingspinner #square4 {
+          left: calc( 2 * var(--offset) ); top: calc( 1 * var(--offset) );
+          animation: square4 var(--duration) var(--delay) var(--timing-function) infinite,
+                     squarefadein var(--in-duration) calc(3 * var(--in-delay)) var(--in-timing-function) both;
+        }
+        .loadingspinner #square5 {
+          left: calc( 3 * var(--offset) ); top: calc( 1 * var(--offset) );
+          animation: square5 var(--duration) var(--delay) var(--timing-function) infinite,
+                     squarefadein var(--in-duration) calc(4 * var(--in-delay)) var(--in-timing-function) both;
+        }
+
+        @keyframes square1 {
+          0% { left: calc(0 * var(--offset)); top: calc(0 * var(--offset)); }
+          8.333% { left: calc(0 * var(--offset)); top: calc(1 * var(--offset)); }
+          100% { left: calc(0 * var(--offset)); top: calc(1 * var(--offset)); }
+        }
+        @keyframes square2 {
+          0% { left: calc(0 * var(--offset)); top: calc(1 * var(--offset)); }
+          8.333% { left: calc(0 * var(--offset)); top: calc(2 * var(--offset)); }
+          16.67% { left: calc(1 * var(--offset)); top: calc(2 * var(--offset)); }
+          25.00% { left: calc(1 * var(--offset)); top: calc(1 * var(--offset)); }
+          83.33% { left: calc(1 * var(--offset)); top: calc(1 * var(--offset)); }
+          91.67% { left: calc(1 * var(--offset)); top: calc(0 * var(--offset)); }
+          100% { left: calc(0 * var(--offset)); top: calc(0 * var(--offset)); }
+        }
+        @keyframes square3 {
+          0%,100% { left: calc(1 * var(--offset)); top: calc(1 * var(--offset)); }
+          16.67% { left: calc(1 * var(--offset)); top: calc(1 * var(--offset)); }
+          25.00% { left: calc(1 * var(--offset)); top: calc(0 * var(--offset)); }
+          33.33% { left: calc(2 * var(--offset)); top: calc(0 * var(--offset)); }
+          41.67% { left: calc(2 * var(--offset)); top: calc(1 * var(--offset)); }
+          66.67% { left: calc(2 * var(--offset)); top: calc(1 * var(--offset)); }
+          75.00% { left: calc(2 * var(--offset)); top: calc(2 * var(--offset)); }
+          83.33% { left: calc(1 * var(--offset)); top: calc(2 * var(--offset)); }
+          91.67% { left: calc(1 * var(--offset)); top: calc(1 * var(--offset)); }
+        }
+        @keyframes square4 {
+          0% { left: calc(2 * var(--offset)); top: calc(1 * var(--offset)); }
+          33.33% { left: calc(2 * var(--offset)); top: calc(1 * var(--offset)); }
+          41.67% { left: calc(2 * var(--offset)); top: calc(2 * var(--offset)); }
+          50.00% { left: calc(3 * var(--offset)); top: calc(2 * var(--offset)); }
+          58.33% { left: calc(3 * var(--offset)); top: calc(1 * var(--offset)); }
+          100% { left: calc(3 * var(--offset)); top: calc(1 * var(--offset)); }
+        }
+        @keyframes square5 {
+          0% { left: calc(3 * var(--offset)); top: calc(1 * var(--offset)); }
+          50.00% { left: calc(3 * var(--offset)); top: calc(1 * var(--offset)); }
+          58.33% { left: calc(3 * var(--offset)); top: calc(0 * var(--offset)); }
+          66.67% { left: calc(2 * var(--offset)); top: calc(0 * var(--offset)); }
+          75.00% { left: calc(2 * var(--offset)); top: calc(1 * var(--offset)); }
+          100% { left: calc(2 * var(--offset)); top: calc(1 * var(--offset)); }
+        }
+        @keyframes squarefadein {
+          0% { transform: scale(0.75); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
 }

@@ -1,49 +1,48 @@
 import React from "react";
 import ScrambleText from "./ScrambleText.jsx";
 import { useTheme, useTokens } from "./ThemeProvider.jsx";
+import LegalTrigger from "./LegalTrigger.jsx";
+import archvLogo from "../assets/archv-logo.png";
 
 /**
  * Archv Header — light theme only
- * - Brand + links left; Login + clock right
+ * - Brand + links left; Login + Legal + clock right
  * - Continuous bottom rule, matching page paddings
  * - Clicking brand stows/reveals ONLY the links
- * - Logo now uses archv-logo.png (black-forced)
  */
 
 export default function Nav() {
-  // Always light (provider forces it)
   const { theme } = useTheme();
   const t = useTokens(theme);
 
   const [stowed, setStowed] = React.useState(false);
+
   React.useEffect(() => {
     try {
-      const last = sessionStorage.getItem("archv:stowed");
-      if (last === "1") setStowed(true);
+      if (typeof window !== "undefined") {
+        const last = window.sessionStorage.getItem("archv:stowed");
+        if (last === "1") setStowed(true);
+      }
     } catch {}
   }, []);
+
   React.useEffect(() => {
     try {
-      sessionStorage.setItem("archv:stowed", stowed ? "1" : "0");
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem("archv:stowed", stowed ? "1" : "0");
+      }
     } catch {}
   }, [stowed]);
-
-  // Use ONLY archv-logo.png
-  let logoUrl = "/archv-logo.png";
-  try {
-    logoUrl = new URL("../assets/archv-logo.png", import.meta.url).href;
-  } catch {}
 
   return (
     <>
       <style>{`
         :root { --header-h: 56px; }
         .archv-header { position: sticky; top: 0; z-index: 60; }
-        /* full-bleed bottom rule */
+        /* full-bleed bottom rule (cross-browser safe) */
         .archv-header::after{
           content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
-          background: color-mix(in oklab, currentColor 18%, transparent);
-          pointer-events:none;
+          background: currentColor; opacity: .18; pointer-events:none;
         }
         .archv-inner{ height:var(--header-h); display:flex; align-items:center; }
 
@@ -54,6 +53,7 @@ export default function Nav() {
         }
         .archv-nav-open { transform: translateX(0) scaleX(1); clip-path: inset(0 0 0 0); opacity:1; }
         .archv-nav-stowed { transform: translateX(-8px) scaleX(.62); clip-path: inset(0 98% 0 0); opacity:0; pointer-events:none; }
+
         @media (prefers-reduced-motion: reduce){
           .archv-nav-wrap { transition: none !important; }
         }
@@ -62,27 +62,23 @@ export default function Nav() {
       <header
         className={`archv-header w-full relative ${t.pageBg} ${t.pageText} ${t.font}`}
       >
-        {/* match page paddings for seamless line */}
         <div className="archv-inner mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14">
           <div className="flex items-center justify-between w-full gap-3">
             {/* LEFT: brand + links */}
             <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => setStowed((s) => !s)}
-                aria-pressed={stowed}
-                aria-expanded={!stowed}
+                aria-pressed={stowed ? "true" : "false"}
+                aria-expanded={!stowed ? "true" : "false"}
                 className="group flex items-center gap-2 select-none focus:outline-none"
                 title={stowed ? "Reveal pages" : "Hide pages"}
               >
-                {/* Force the single logo to render BLACK */}
+                {/* Logo (bundled asset) */}
                 <img
-                  src={logoUrl}
+                  src={archvLogo}
                   alt="Archv mark"
                   className="h-[18px] w-auto object-contain"
-                  style={{
-                    filter: "brightness(0)", // makes any light logo appear black
-                    imageRendering: "crisp-edges",
-                  }}
+                  style={{ imageRendering: "crisp-edges" }}
                   draggable="false"
                 />
 
@@ -120,7 +116,7 @@ export default function Nav() {
               </div>
             </div>
 
-            {/* RIGHT: Login + clock */}
+            {/* RIGHT: Login + Legal + clock */}
             <div className="flex items-center gap-3">
               <a
                 href="/login"
@@ -128,6 +124,10 @@ export default function Nav() {
               >
                 Login
               </a>
+
+              {/* Legal modal trigger (tabs: TOS/Privacy) */}
+              <LegalTrigger />
+
               <span className="text-[12px] opacity-70 tabular-nums">
                 <LiveClock />
               </span>

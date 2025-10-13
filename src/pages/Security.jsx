@@ -9,35 +9,26 @@ export default function Security() {
   const isDark = theme === "dark";
   const bx = isDark ? "border-white/20" : "border-black/20";
   const mute = isDark ? "text-white/60" : "text-black/60";
+
+  // If this filename differs in your repo, update the path below.
   const logoUrl = new URL("../assets/ARCHV (1).png", import.meta.url).href;
+
+  const ORANGE = "var(--archv-orange, #FF6A00)";
 
   return (
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
     >
-      {/* ✅ Nav matches Home/Platform (outside wrapper, full-bleed) */}
       <Nav />
 
-      {/* MAIN — same horizontal padding as the other pages */}
       <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
-        {/* Local keyframes */}
+        {/* Keyframes / reduced motion guard */}
         <style>{`
-          /* Seamless marquee: translate by the full width of one copy (-100%) */
-          @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-          @keyframes scan { 0% { left:0 } 100% { left:100% } }
-
-          /* Bounce the underline cursor between ends of the measured rail */
-          @keyframes pong {
-            from { transform: translateX(0); }
-            to   { transform: translateX(var(--maxX)); }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            * { animation: none !important; transition: none !important; }
-          }
+          @keyframes archvTicker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+          @keyframes pong { from { transform: translateX(0); } to { transform: translateX(var(--maxX)); } }
+          @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
         `}</style>
 
-        {/* Top terminal strip */}
         <TerminalStrip />
 
         {/* HERO */}
@@ -47,8 +38,12 @@ export default function Security() {
             className={`col-span-12 md:col-span-3 border-r ${bx} p-3 sm:p-4`}
           >
             <Rail title="Security">
-              <RailItem label="Data" hint="You own it · export · delete" />
-              <RailItem label="Access" hint="SSO · roles · least-priv" />
+              <RailItem
+                label="Data"
+                hint="You own it · export · delete"
+                orange
+              />
+              <RailItem label="Access" hint="SSO · roles · least-priv" orange />
               <RailItem label="Storage" hint="Encrypted at rest & in transit" />
               <RailItem label="Retention" hint="You set how long" />
               <RailItem
@@ -58,7 +53,7 @@ export default function Security() {
             </Rail>
           </aside>
 
-          {/* Right column */}
+          {/* Right col */}
           <section className="col-span-12 md:col-span-9 p-3 sm:p-5">
             <div className="flex flex-col lg:flex-row items-start gap-5 lg:items-center lg:justify-between">
               <div>
@@ -68,34 +63,40 @@ export default function Security() {
                   Statement
                 </div>
 
-                {/* Scrambles ~2s on every mount */}
-                <ScrambleTextOnMount
-                  text="TRUST WITHOUT DRAMA"
-                  className="leading-[0.92] font-semibold mt-2"
+                <div
+                  className="mt-2 leading-[0.92] font-semibold"
                   style={{
                     fontSize: "clamp(2.4rem, 7.8vw, 6rem)",
                     letterSpacing: "-0.02em",
                   }}
-                  durationMs={2000}
+                >
+                  <ScrambleTextLoop
+                    text="TRUST WITHOUT DRAMA"
+                    durationMs={2000}
+                    gapMs={1200}
+                  />
+                </div>
+
+                <div
+                  className="mt-2 h-[3px] w-28 rounded-full"
+                  style={{ background: ORANGE, opacity: 0.9 }}
                 />
 
                 <p className="mt-3 text-sm max-w-prose">
                   Your content stays yours. Clear controls. Predictable results.
                   <span className="block mt-1">
-                    <strong>Security and privacy are the product</strong> — not
-                    a feature gate.
+                    <strong>Security and privacy are the product</strong>, not a
+                    feature gate.
                   </span>
                 </p>
               </div>
 
               <div className="flex items-start gap-4">
                 <AsciiSeal />
-                {/* White source PNG -> black on light (invert), white on dark (no invert) */}
                 <LogoStamp src={logoUrl} />
               </div>
             </div>
 
-            {/* ARCHV • AI • TRUST kinetic line */}
             <div className="mt-4">
               <TrustKinetics />
             </div>
@@ -112,7 +113,11 @@ export default function Security() {
             </div>
 
             {/* Ticker */}
-            <div className="mt-4">
+            <div className="mt-4 relative">
+              <div
+                className="absolute -top-1 left-0 right-0 h-[2px]"
+                style={{ background: ORANGE, opacity: 0.1 }}
+              />
               <TickerBar />
             </div>
           </section>
@@ -120,61 +125,71 @@ export default function Security() {
 
         {/* CARDS */}
         <div className={`mt-6 grid grid-cols-12 gap-0 border ${bx}`}>
-          <Card title="Data" r>
-            • <strong>You own your data</strong> — always. <br />• Not used to
-            train models without explicit consent. <br />• One-click{" "}
-            <strong>export</strong> or <strong>deletion</strong>.
-          </Card>
-          <Card title="Access" r>
-            • <strong>SSO</strong> & clean roles. <br />•{" "}
-            <strong>Least-privilege</strong> by default. <br />•{" "}
-            <strong>Readable audit logs</strong> for every action.
-          </Card>
-          <Card title="Protection">
-            • <strong>Encryption in transit & at rest</strong>. <br />•{" "}
-            <strong>Backups</strong>, key rotation, scoped keys. <br />•{" "}
-            <strong>Data residency</strong> by region.
-          </Card>
-        </div>
-
-        {/* CONTROLS */}
-        <div className={`mt-6 grid grid-cols-12 gap-0 border ${bx}`}>
-          <div className="col-span-12 p-4 sm:p-5">
-            <div className="text-[11px] tracking-[0.22em] uppercase mb-3">
-              Controls
+          <Card title="Data" r orangeBar>
+            <p>
+              Your environment is <strong>single-tenant</strong> and isolated.
+              Compute, storage, and networking are scoped to your organization
+              in a <strong>private network boundary</strong> with no co-tenancy.
+              Content is <strong>encrypted at rest</strong> with{" "}
+              <strong>customer-managed keys (CMK / BYOK)</strong>; rotation and
+              revocation are supported. Ingest uses private paths and mutual TLS
+              and <strong>egress is allow-listed</strong> and off by default.
+              Nothing is used to train any model. You can pin data to a region,
+              and <strong>backups inherit the same residency</strong>,
+              encryption, and access controls.
+            </p>
+            <div
+              className="mt-3 rounded-md p-3 text-[13px] border"
+              style={{
+                borderColor: "rgba(255,106,0,0.35)",
+                background: "rgba(255,106,0,0.06)",
+              }}
+            >
+              We practice <strong>physical and logical isolation</strong>:
+              separate accounts and projects, private subnets, dedicated
+              security boundaries, and no shared datasets. If you leave, you can{" "}
+              <strong>export</strong> everything and we <strong>delete</strong>{" "}
+              what remains on a documented schedule.
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Chip>SSO</Chip>
-              <Chip>RBAC</Chip>
-              <Chip>Audit Log</Chip>
-              <Chip>KMS / Keys</Chip>
-              <Chip>Backups</Chip>
-              <Chip>Data Residency</Chip>
-              <Chip>Export</Chip>
-              <Chip>Deletion</Chip>
-              <Chip>Privacy by Default</Chip>
-            </div>
-          </div>
-        </div>
+          </Card>
 
-        {/* LEDGER */}
-        <div className={`mt-6 grid grid-cols-12 gap-0 border ${bx}`}>
-          <LedgerRow
-            a="Retention"
-            b="Minimal by default. You choose durations — we adhere."
-          />
-          <LedgerRow
-            a="Sharing"
-            b="No sharing unless you say so. No hidden processors."
-          />
-          <LedgerRow
-            a="Models"
-            b="Use ours or yours. Same guardrails and privacy stance either way."
-          />
-          <LedgerRow
-            a="Reviews"
-            b="Instant exports for legal/security. Transparent, verifiable logs."
-          />
+          <Card title="Access" r orangeBar>
+            <p>
+              Identity is <strong>federated with your SSO</strong>. Roles follow{" "}
+              <strong>least-privilege</strong> and can be scoped down to
+              datasets and matters to prevent cross-client leakage. Any elevated
+              administrative work requires <strong>just-in-time</strong>{" "}
+              approval with <strong>hardware-bound MFA</strong>, is time-boxed,
+              and <strong>session-recorded</strong>. Every API call and model
+              run has <strong>provenance</strong>: who did it, when, from where,
+              and with which context.
+            </p>
+            <div
+              className="mt-3 rounded-md p-3 text-[13px] border"
+              style={{
+                borderColor: "rgba(255,106,0,0.35)",
+                background: "rgba(255,106,0,0.06)",
+              }}
+            >
+              Network policy enforces <strong>private endpoints</strong>,{" "}
+              <strong>IP allow-lists</strong>, and optional{" "}
+              <strong>private link</strong>. You receive{" "}
+              <strong>exportable audit logs</strong> suitable for internal
+              review or regulators. Break-glass paths are rare, reviewed, and
+              fully logged.
+            </div>
+          </Card>
+
+          <Card title="Protection" orangeBar>
+            <p>
+              <strong>Encryption in transit and at rest</strong> is standard.
+              Key material can be hosted in your HSM or ours. Scheduled{" "}
+              <strong>backups</strong> are validated and inherit your residency
+              and key policy. <strong>Data residency</strong> is enforced by
+              region, and we support customer-managed keys, rotation windows,
+              and scoped key usage.
+            </p>
+          </Card>
         </div>
 
         {/* CTA */}
@@ -182,7 +197,15 @@ export default function Security() {
           <div className="bg-black text-white dark:bg-white dark:text-black p-6 sm:p-8 text-center">
             <a
               href="/contact"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-current"
+              className="inline-flex items-center gap-2 px-4 py-2 border border-current rounded-md transition hover:bg-black hover:text-white dark:hover:bg-black dark:hover:text-white hover:ring-2"
+              style={{ boxShadow: "0 0 0 0 rgba(0,0,0,0)" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.boxShadow =
+                  "0 0 0 3px rgba(255,106,0,0.35)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.boxShadow = "0 0 0 0 rgba(0,0,0,0)")
+              }
             >
               Request security brief <span>↗</span>
             </a>
@@ -192,7 +215,6 @@ export default function Security() {
           </div>
         </div>
 
-        {/* FOOTNOTE */}
         <div className={`mt-6 border-t ${bx} pt-3 text-[11px] ${mute}`}>
           © Archv AI — design iteration 2
         </div>
@@ -201,7 +223,7 @@ export default function Security() {
   );
 }
 
-/* =================== Local components =================== */
+/* ============ Local components ============ */
 
 function TerminalStrip() {
   const { theme } = useTheme();
@@ -244,23 +266,29 @@ function Rail({ title, children }) {
   );
 }
 
-function RailItem({ label, hint }) {
+function RailItem({ label, hint, orange = false }) {
   const { theme } = useTheme();
   const bx = theme === "dark" ? "border-white/20" : "border-black/20";
   const mute = theme === "dark" ? "text-white/60" : "text-black/60";
+  const ORANGE = "var(--archv-orange, #FF6A00)";
   return (
     <div
-      className={`group flex items-center justify-between py-2 sm:py-2.5 border-b ${bx} cursor-default`}
-      tabIndex={0}
+      className={`group relative flex items-center justify-between py-2 sm:py-2.5 border-b ${bx} cursor-default`}
     >
-      <span className="text-sm sm:text-base">{label}</span>
+      {orange && (
+        <span
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full"
+          style={{ background: ORANGE, opacity: 0.8 }}
+        />
+      )}
+      <span className="pl-2 text-sm sm:text-base">{label}</span>
       <div className="relative min-w-[160px] text-right">
         <span
-          className={`${mute} text-xs block transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0`}
+          className={`${mute} text-xs block transition-opacity duration-200 group-hover:opacity-0`}
         >
           →
         </span>
-        <span className="absolute inset-0 right-0 text-[11px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="absolute inset-0 right-0 text-[11px] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {hint}
         </span>
       </div>
@@ -271,11 +299,16 @@ function RailItem({ label, hint }) {
 function Stamp({ label, children }) {
   const { theme } = useTheme();
   const bx = theme === "dark" ? "border-white/20" : "border-black/20";
+  const ORANGE = "var(--archv-orange, #FF6A00)";
   return (
     <div className="col-span-12 sm:col-span-4">
       <div
         className={`inline-flex items-center gap-2 text-xs border ${bx} px-2.5 py-1`}
       >
+        <span
+          className="inline-block h-2 w-2 rounded-full"
+          style={{ background: ORANGE, opacity: 0.9 }}
+        />
         <span className="opacity-70 tracking-[0.18em] uppercase">{label}</span>
         <span>{children}</span>
       </div>
@@ -283,95 +316,35 @@ function Stamp({ label, children }) {
   );
 }
 
-function Chip({ children }) {
+function Card({ title, children, r = false, orangeBar = false }) {
   const { theme } = useTheme();
   const bx = theme === "dark" ? "border-white/20" : "border-black/20";
-  return (
-    <span className={`text-[11px] px-2.5 py-1 border ${bx} rounded-md`}>
-      {children}
-    </span>
-  );
-}
-
-function Card({ title, children, r = false }) {
-  const { theme } = useTheme();
-  const bx = theme === "dark" ? "border-white/20" : "border-black/20";
+  const ORANGE = "var(--archv-orange, #FF6A00)";
   return (
     <section
-      className={`col-span-12 md:col-span-4 p-4 sm:p-5 border ${bx} ${
-        r ? "md:border-right md:border-r" : ""
+      className={`relative col-span-12 md:col-span-4 p-4 sm:p-5 border ${bx} ${
+        r ? "md:border-r" : ""
       }`}
     >
+      {orangeBar && (
+        <span
+          className="absolute left-0 top-0 h-full w-[3px] rounded-sm"
+          style={{ background: ORANGE, opacity: 0.7 }}
+        />
+      )}
       <h3 className="text-xl sm:text-2xl font-semibold">{title}</h3>
       <div className="mt-3 text-sm leading-relaxed">{children}</div>
     </section>
   );
 }
 
-function LedgerRow({ a, b }) {
-  const { theme } = useTheme();
-  const bx = theme === "dark" ? "border-white/20" : "border-black/20";
-  return (
-    <div className={`col-span-12 grid grid-cols-12 border-b ${bx}`}>
-      <div
-        className={`col-span-12 md:col-span-4 border-r ${bx} p-4 sm:p-5 text-[11px] tracking-[0.22em] uppercase`}
-      >
-        {a}
-      </div>
-      <div className="col-span-12 md:col-span-8 p-4 sm:p-5 text-lg sm:text-xl">
-        {b}
-      </div>
-    </div>
-  );
-}
-
-function AsciiSeal() {
-  const { theme } = useTheme();
-  const bx = theme === "dark" ? "border-white/20" : "border-black/20";
-  const tone = theme === "dark" ? "text-white/70" : "text-black/70";
-  const art = [
-    "  .:ARCHV:.",
-    " .:  AI   :.",
-    ":  TRUST   :",
-    "'.       .'",
-    "  '-----'  ",
-  ].join("\n");
-  return (
-    <pre
-      className={`font-mono text-[10px] leading-[1.05] px-2.5 py-2 border ${bx} ${tone} select-none`}
-      style={{ whiteSpace: "pre", lineHeight: 1.05 }}
-      aria-hidden
-    >
-      {art}
-    </pre>
-  );
-}
-
-/** Page logo stamp: white PNG -> black on light, white on dark */
-function LogoStamp({ src }) {
-  return (
-    <div
-      className="w-16 h-16 border border-current flex items-center justify-center select-none"
-      style={{ aspectRatio: "1/1" }}
-      aria-hidden
-    >
-      <img
-        src={src}
-        alt=""
-        draggable="false"
-        className="w-10 h-10 object-contain transition invert dark:invert-0"
-        style={{ imageRendering: "crisp-edges" }}
-      />
-    </div>
-  );
-}
-
-/* ===== Scramble on mount (runs once per visit to this page) ===== */
-function ScrambleTextOnMount({
+/* ===== Looping scramble (with solid cleanup) ===== */
+function ScrambleTextLoop({
   text,
   className = "",
   style,
   durationMs = 2000,
+  gapMs = 1200,
   chaos = "!<>-_\\/[]{}—=+*^?#_0123456789",
 }) {
   const prefersReduced =
@@ -379,21 +352,32 @@ function ScrambleTextOnMount({
     window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const initialScramble = React.useMemo(
-    () => (prefersReduced ? text : scrambleSeed(text, chaos)),
-    [text, chaos, prefersReduced]
-  );
-  const [out, setOut] = React.useState(initialScramble);
+  const [out, setOut] = React.useState(text);
 
   React.useEffect(() => {
-    if (prefersReduced) return;
-    const start = performance.now();
-    const chars = chaos.split("");
+    if (prefersReduced) {
+      setOut(text);
+      return;
+    }
+
     let raf = 0;
+    let timeout = 0;
+    let start = performance.now();
+    const chars = chaos.split("");
+    let alive = true;
+
+    const restart = () => {
+      if (!alive) return;
+      start = performance.now();
+      setOut(scrambleSeed(text, chaos));
+      raf = requestAnimationFrame(tick);
+    };
 
     const tick = (now) => {
+      if (!alive) return;
       const t = Math.min(1, (now - start) / durationMs);
       const reveal = Math.floor(t * text.length);
+
       let s = "";
       for (let i = 0; i < text.length; i++) {
         s +=
@@ -402,13 +386,22 @@ function ScrambleTextOnMount({
             : chars[(i + Math.floor((1 - t) * 60)) % chars.length];
       }
       setOut(s);
-      if (t < 1) raf = requestAnimationFrame(tick);
-      else setOut(text);
+
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        timeout = window.setTimeout(restart, gapMs);
+      }
     };
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [text, durationMs, chaos, prefersReduced]);
+    restart();
+
+    return () => {
+      alive = false;
+      cancelAnimationFrame(raf);
+      clearTimeout(timeout);
+    };
+  }, [text, durationMs, gapMs, chaos, prefersReduced]);
 
   return (
     <span className={className} style={style}>
@@ -426,7 +419,7 @@ function scrambleSeed(target, chaos) {
   return s;
 }
 
-/* ARCHV • AI • TRUST kinetic line (pong bounce underline; perfectly stops at TRUST) */
+/* ARCHV • AI • TRUST underline that bounces */
 function TrustKinetics() {
   const { theme } = useTheme();
   const tone = theme === "dark" ? "text-white/80" : "text-black/80";
@@ -435,7 +428,6 @@ function TrustKinetics() {
   const trustRef = React.useRef(null);
   const [vars, setVars] = React.useState({ railW: 0, cursorW: 0 });
 
-  // Measure widths on mount & on resize
   React.useEffect(() => {
     const measure = () => {
       if (!labelRef.current || !trustRef.current) return;
@@ -443,21 +435,37 @@ function TrustKinetics() {
       const cursorW = Math.round(
         trustRef.current.getBoundingClientRect().width
       );
-      setVars({ railW, cursorW });
+      setVars((prev) =>
+        prev.railW === railW && prev.cursorW === cursorW
+          ? prev
+          : { railW, cursorW }
+      );
     };
+
     measure();
-    const ro = new ResizeObserver(measure);
-    if (labelRef.current) ro.observe(labelRef.current);
-    if (trustRef.current) ro.observe(trustRef.current);
-    window.addEventListener("resize", measure);
+
+    // Feature-detect ResizeObserver
+    const RO =
+      typeof window !== "undefined" && window.ResizeObserver
+        ? window.ResizeObserver
+        : null;
+    let ro = null;
+    if (RO && labelRef.current && trustRef.current) {
+      ro = new RO(measure);
+      ro.observe(labelRef.current);
+      ro.observe(trustRef.current);
+    } else if (typeof window !== "undefined") {
+      window.addEventListener("resize", measure);
+    }
+
     return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
+      if (ro) ro.disconnect();
+      else if (typeof window !== "undefined")
+        window.removeEventListener("resize", measure);
     };
   }, []);
 
   const styleVars = {
-    // px values into CSS variables
     ["--railW"]: `${vars.railW}px`,
     ["--cursorW"]: `${vars.cursorW}px`,
     ["--maxX"]: `calc(var(--railW) - var(--cursorW))`,
@@ -468,7 +476,6 @@ function TrustKinetics() {
       className={`relative inline-block font-mono ${tone} select-none`}
       style={styleVars}
     >
-      {/* Text (no padding that could skew width) */}
       <div ref={labelRef} className="text-xs tracking-[0.35em]">
         ARCHV <span className="inline-block">•</span> AI{" "}
         <span className="inline-block">•</span>{" "}
@@ -476,14 +483,11 @@ function TrustKinetics() {
           TRUST
         </span>
       </div>
-
-      {/* Underline rail exactly the width of the text line */}
       <div
         className="relative h-[2px] mt-1 opacity-40"
         style={{ width: "var(--railW)" }}
       >
         <div className="absolute inset-0 bg-current/30" />
-        {/* Cursor: bounces between 0 and (railW - cursorW); no bleed past TRUST */}
         <div
           className="absolute top-0 h-[2px] bg-current will-change-transform"
           style={{
@@ -498,7 +502,7 @@ function TrustKinetics() {
   );
 }
 
-/* Ticker bar (seamless) */
+/* Ticker bar with renamed keyframes (archvTicker) */
 function TickerBar() {
   const { theme } = useTheme();
   const dim = theme === "dark" ? "text-white/70" : "text-black/70";
@@ -521,13 +525,11 @@ function TickerBar() {
           "linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent)",
       }}
     >
-      {/* Two identical copies (A + B). Translate by -100% for a seamless loop. */}
       <div
         className="whitespace-nowrap flex"
         style={{
           width: "max-content",
-          animation: "ticker 30s linear infinite",
-          willChange: "transform",
+          animation: "archvTicker 30s linear infinite",
         }}
       >
         <span className="px-3">{content}</span>
@@ -560,7 +562,6 @@ function makeTickerRow() {
   return items.sort(() => 0.5 - Math.random());
 }
 
-/* Small helpers */
 function Today() {
   const [d] = React.useState(() =>
     new Date().toLocaleDateString(undefined, {
@@ -583,5 +584,45 @@ function LiveStatus() {
     <span className="inline-flex items-center gap-1">
       <span className="opacity-70">{frames[i]}</span>Operational
     </span>
+  );
+}
+
+function AsciiSeal() {
+  const { theme } = useTheme();
+  const bx = theme === "dark" ? "border-white/20" : "border-black/20";
+  const tone = theme === "dark" ? "text-white/70" : "text-black/70";
+  const art = [
+    "  .:ARCHV:.",
+    " .:  AI   :.",
+    ":  TRUST   :",
+    "'.       .'",
+    "  '-----'  ",
+  ].join("\n");
+  return (
+    <pre
+      className={`font-mono text-[10px] leading-[1.05] px-2.5 py-2 border ${bx} ${tone} select-none`}
+      style={{ whiteSpace: "pre", lineHeight: 1.05 }}
+      aria-hidden
+    >
+      {art}
+    </pre>
+  );
+}
+
+function LogoStamp({ src }) {
+  return (
+    <div
+      className="w-16 h-16 border border-current flex items-center justify-center select-none"
+      style={{ aspectRatio: "1/1" }}
+      aria-hidden
+    >
+      <img
+        src={src}
+        alt=""
+        draggable="false"
+        className="w-10 h-10 object-contain transition invert dark:invert-0"
+        style={{ imageRendering: "crisp-edges" }}
+      />
+    </div>
   );
 }

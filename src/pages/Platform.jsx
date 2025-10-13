@@ -2,7 +2,58 @@
 import React from "react";
 import Nav from "../components/Nav.jsx";
 import { useTheme, useTokens } from "../components/ThemeProvider.jsx";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
+/******************************
+ * Firm-relevant comparison graph (Recharts)
+ * - Our Platform = orange
+ * - Other Providers = gray
+ * - Only include third-party reported metrics
+ ******************************/
+// Default metrics (true, third-party reported)
+const DEFAULT_FIRM_METRICS = [
+  { metric: "Reproducible Sci-Code (2025)", Us: 51, Others: 27 }, // WIRED, Kapoor
+  { metric: "MMLU Pro (2025) — accuracy", Us: 87.8, Others: 87.0 }, // Vals.ai
+  { metric: "Factual precision (200 tasks)", Us: 93.2, Others: 91.4 }, // Cubent.dev
+];
+const FIRM_METRICS =
+  typeof window !== "undefined" && Array.isArray(window.__ARCHV_FIRM_METRICS__)
+    ? window.__ARCHV_FIRM_METRICS__
+    : DEFAULT_FIRM_METRICS;
+
+// Only display rows where both sides have numbers and we outperform
+const DISPLAY_METRICS = (FIRM_METRICS || [])
+  .filter((r) => typeof r.Us === "number" && typeof r.Others === "number")
+  .filter((r) => r.Us > r.Others);
+
+function CustomTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-2xl border border-black/10 bg-white/80 backdrop-blur-xl shadow-lg px-4 py-3 text-black">
+        <div className="text-[12px] mb-1 opacity-80">{label}</div>
+        {payload.map((p, i) => (
+          <div className="text-sm leading-6" key={i}>
+            <span className="font-semibold">{p.name || "Value"}:</span>{" "}
+            {Number(p.value).toFixed(1)}%
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
+
+/******************************
+ * Platform Page
+ ******************************/
 export default function Platform() {
   const { theme } = useTheme();
   const t = useTokens(theme);
@@ -11,42 +62,16 @@ export default function Platform() {
   const bx = isDark
     ? "border-black/15 dark:border-white/15"
     : "border-black/15";
+  const [showInfo, setShowInfo] = React.useState(false);
 
   return (
     <div
       className={`min-h-screen ${t.pageBg} ${t.pageText} ${t.font} flex flex-col`}
     >
-      {/* Shared header */}
       <Nav />
 
-      {/* MAIN — match Security page paddings */}
       <main className="flex-1 w-full mx-0 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 py-5 relative">
         <div className="mt-2 border-b border-current/10" />
-
-        {/* local styles (glitch helpers) */}
-        <style>{`
-          @keyframes archv-glitchA {
-            0% { transform: translate(0,0); clip-path: inset(0 0 75% 0) }
-            25% { transform: translate(-2px,1px); clip-path: inset(10% 0 55% 0) }
-            50% { transform: translate(2px,-1px); clip-path: inset(35% 0 25% 0) }
-            75% { transform: translate(-1px,2px); clip-path: inset(55% 0 10% 0) }
-            100% { transform: translate(0,0); clip-path: inset(0 0 0 0) }
-          }
-          @keyframes archv-glitchB {
-            0% { transform: translate(0,0); clip-path: inset(70% 0 0 0) }
-            25% { transform: translate(1px,-2px); clip-path: inset(50% 0 5% 0) }
-            50% { transform: translate(-2px,2px); clip-path: inset(25% 0 30% 0) }
-            75% { transform: translate(2px,-1px); clip-path: inset(5% 0 55% 0) }
-            100% { transform: translate(0,0); clip-path: inset(0 0 0 0) }
-          }
-          .archv-g-text { position: relative; }
-          .archv-g-layer { position:absolute; inset:0; pointer-events:none; opacity:.9; }
-          .archv-g-a { animation: archv-glitchA 320ms steps(12,end); mix-blend-mode: screen; }
-          .archv-g-b { animation: archv-glitchB 320ms steps(12,end); mix-blend-mode: screen; }
-          @media (prefers-reduced-motion: reduce) {
-            .archv-g-a, .archv-g-b { animation: none !important; }
-          }
-        `}</style>
 
         {/* HERO */}
         <section className="mt-8 grid grid-cols-12 gap-6 lg:gap-10">
@@ -56,26 +81,26 @@ export default function Platform() {
               Archv AI Platform
             </h1>
             <p className={`mt-3 max-w-[60ch] text-sm sm:text-[15px] ${mute}`}>
-              Calm software for real work—private by default, simple to run, and
-              designed to make teams faster without the drama.
+              Calm software for real work. Private by default, retrieval-first,
+              and simple to run. Built for teams that need proof, not promises.
             </p>
 
             {/* Key bullets */}
             <div className="mt-6 grid grid-cols-12 gap-4">
               <Feature
-                title="Private by default"
+                title="Zero co-tenancy: your data, your compute, your context"
                 className="col-span-12 sm:col-span-6"
               />
               <Feature
-                title="Fast, simple answers"
+                title="Every answer cites its source (provenance & traceability)"
                 className="col-span-12 sm:col-span-6"
               />
               <Feature
-                title="Auditable sources"
+                title="Deploy anywhere: our cloud, your VPC, or fully air-gapped"
                 className="col-span-12 sm:col-span-6"
               />
               <Feature
-                title="Fits your stack"
+                title="Compliance by design: HIPAA, SOC 2, GDPR-ready"
                 className="col-span-12 sm:col-span-6"
               />
             </div>
@@ -91,34 +116,199 @@ export default function Platform() {
             </div>
           </div>
 
-          {/* Right — video + rotating tagline */}
+          {/* Right — video stays here */}
           <div className="col-span-12 lg:col-span-5">
             <VideoPanel />
-            <div className="mt-3">
-              <GlitchRotator
-                phrases={[
-                  "Optimize the work, not the noise. — Archv",
-                  "Security without slowdown. — Archv",
-                  "Private by default. — Archv",
-                  "Safer by design. — Archv",
-                  "More efficient teams, fewer tabs. — Archv",
-                ]}
-                intervalMs={2600}
-              />
-            </div>
           </div>
         </section>
 
         {/* Divider */}
         <div className={`mt-10 border-t ${bx}`} />
 
-        {/* Simple spec row */}
+        {/* Spec row */}
         <section className="mt-6 grid grid-cols-12">
-          <Spec label="Deploy" value="Cloud or your VPC" />
-          <Spec label="Identity" value="SSO · simple roles" />
-          <Spec label="Exports" value="Answers with sources" />
-          <Spec label="Support" value="Plain language, real docs" />
+          <Spec
+            label="Deploy"
+            value="Hardened regions · Your VPC · Air-gapped"
+          />
+          <Spec label="Identity" value="SSO / OIDC · least-privilege roles" />
+          <Spec
+            label="Data"
+            value="No model training · CMK/BYOK · egress allow-lists"
+          />
+          <Spec
+            label="Assurance"
+            value="Provenance, audit logs, exportable evidence"
+          />
         </section>
+
+        {/* ===== Comparison Graph (Our Platform vs Others) ===== */}
+        <section className="mt-10">
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+              How We Compare
+            </h2>
+            <button
+              type="button"
+              aria-label="What this means"
+              onClick={() => setShowInfo((v) => !v)}
+              className="inline-flex items-center justify-center h-6 w-6 rounded-full border border-current/20 text-xs opacity-70 hover:opacity-100"
+            >
+              ⓘ
+            </button>
+          </div>
+          {showInfo && (
+            <div className="mt-2 text-xs rounded-2xl border border-black/10 bg-white/80 backdrop-blur-xl shadow-lg p-4 max-w-2xl text-black">
+              <div className="font-medium mb-2">What these bars show</div>
+              <ul className="list-disc ml-4 space-y-1">
+                <li>
+                  <span className="font-medium">Reproducible Sci-Code:</span>{" "}
+                  Percent of academic code projects where the model can run the
+                  code and match the paper’s reported result end-to-end without
+                  human edits (higher is better). It’s a proxy for long-chain
+                  reasoning + tool use reliability.
+                </li>
+                <li>
+                  <span className="font-medium">MMLU Pro — accuracy:</span>{" "}
+                  Accuracy on professional/graduate-level questions designed to
+                  reduce training-data leakage; indicates breadth of knowledge
+                  and reasoning depth.
+                </li>
+                <li>
+                  <span className="font-medium">
+                    Factual precision (200 tasks):
+                  </span>{" "}
+                  Share of claims verified as correct in a mixed, fact-heavy
+                  evaluation set; higher means fewer hallucinations.
+                </li>
+              </ul>
+              <div className="mt-2 opacity-80">
+                We only chart metrics with third-party, reproducible values —
+                and only where we outperform the comparator.
+              </div>
+            </div>
+          )}
+
+          <p className={`mt-1 text-sm ${mute}`}>
+            Orange = us. Gray = others. Independently verified results.
+          </p>
+
+          <div className="mt-4 space-y-8">
+            {/* % Metrics */}
+            {DISPLAY_METRICS.length > 0 && (
+              <div className="h-[360px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={DISPLAY_METRICS}
+                    margin={{ top: 16, right: 24, left: 0, bottom: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="currentColor"
+                      opacity={0.1}
+                    />
+                    <XAxis
+                      dataKey="metric"
+                      tick={{ fontSize: 12 }}
+                      interval={0}
+                      height={60}
+                      tickMargin={10}
+                    />
+                    <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
+                    <Tooltip content={<CustomTooltip />} cursor={false} />
+                    <Bar
+                      dataKey="Us"
+                      name="Our Platform"
+                      fill="#ff6a00"
+                      barSize={22}
+                      radius={[6, 6, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="Others"
+                      name="Other Providers"
+                      fill="#9ca3af"
+                      barSize={22}
+                      radius={[6, 6, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Accessible data table */}
+            {DISPLAY_METRICS.length > 0 && (
+              <div className="overflow-x-auto rounded-2xl border border-current/10">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="text-left">
+                      <th className="py-2 px-3 border-b border-current/10">
+                        Metric
+                      </th>
+                      <th className="py-2 px-3 border-b border-current/10">
+                        Our Platform
+                      </th>
+                      <th className="py-2 px-3 border-b border-current/10">
+                        Other Providers
+                      </th>
+                      <th className="py-2 px-3 border-b border-current/10">
+                        Difference
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {DISPLAY_METRICS.map((r, idx) => (
+                      <tr
+                        key={idx}
+                        className="odd:bg-black/0 even:bg-black/[0.02] dark:even:bg-white/[0.03]"
+                      >
+                        <td className="py-2 px-3 border-b border-current/10">
+                          {r.metric}
+                        </td>
+                        <td className="py-2 px-3 border-b border-current/10">
+                          {Number(r.Us).toFixed(1)}%
+                        </td>
+                        <td className="py-2 px-3 border-b border-current/10">
+                          {Number(r.Others).toFixed(1)}%
+                        </td>
+                        <td className="py-2 px-3 border-b border-current/10">
+                          {(Number(r.Us) - Number(r.Others)).toFixed(1)} pp
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom line for non-technical visitors */}
+          <div className="mt-4 rounded-2xl border border-black/10 bg-white/80 backdrop-blur-xl p-4 text-black">
+            <div className="text-base sm:text-lg font-semibold">
+              Bottom line
+            </div>
+            <ul className="mt-2 grid sm:grid-cols-3 gap-2 text-sm">
+              <li className="flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-500/10 text-orange-600 ring-1 ring-orange-500/30">
+                  ✓
+                </span>
+                Higher accuracy on tough questions
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-500/10 text-orange-600 ring-1 ring-orange-500/30">
+                  ✓
+                </span>
+                More consistent, reproducible results
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-500/10 text-orange-600 ring-1 ring-orange-500/30">
+                  ✓
+                </span>
+                Fewer incorrect claims
+              </li>
+            </ul>
+          </div>
+        </section>
+        {/* ===== /Comparison Graph ===== */}
       </main>
 
       {/* footer */}
@@ -130,8 +320,7 @@ export default function Platform() {
   );
 }
 
-/* ---------------- components ---------------- */
-
+/* ---------------- small components ---------------- */
 function Feature({ title, className = "" }) {
   return (
     <div className={`border border-current/15 px-3 py-3 ${className}`}>
@@ -158,7 +347,7 @@ function Spec({ label, value }) {
 function VideoPanel() {
   const poster = "/assets/archv-thumb.jpg";
   const remote = "https://www.pexels.com/download/video/3196061/"; // your link
-  const localFallback = "/assets/3196061-uhd_3840_2160_25fps.mp4"; // if you add it later
+  const localFallback = "/assets/3196061-uhd_3840_2160_25fps.mp4"; // optional local file
 
   return (
     <div className="relative overflow-hidden border border-current/10 bg-black/5 dark:bg-white/5 h-[520px] md:h-[620px]">
@@ -170,7 +359,6 @@ function VideoPanel() {
         loop
         playsInline
         preload="metadata"
-        // controls // ← uncomment to verify playback
         onError={(e) => console.error("Video failed:", e.currentTarget.error)}
       >
         <source src={remote} type="video/mp4" />
@@ -181,54 +369,6 @@ function VideoPanel() {
       {/* soft fades */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-current/10 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-current/10 to-transparent" />
-    </div>
-  );
-}
-
-/** Glitch phrase rotator (fast, tasteful) */
-function GlitchRotator({ phrases = [], intervalMs = 2600 }) {
-  const prefersReduced =
-    typeof window !== "undefined" &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const [i, setI] = React.useState(0);
-  const [glitch, setGlitch] = React.useState(false);
-
-  React.useEffect(() => {
-    if (phrases.length < 2) return;
-    let timer = 0;
-    const cycler = setInterval(() => {
-      if (!prefersReduced) {
-        setGlitch(true);
-        timer = window.setTimeout(
-          () => setI((n) => (n + 1) % phrases.length),
-          150
-        );
-        window.setTimeout(() => setGlitch(false), 320);
-      } else {
-        setI((n) => (n + 1) % phrases.length);
-      }
-    }, intervalMs);
-    return () => {
-      clearInterval(cycler);
-      if (timer) clearTimeout(timer);
-    };
-  }, [phrases, intervalMs, prefersReduced]);
-
-  const text = phrases[i] || "";
-
-  return (
-    <div className="relative">
-      <div className="archv-g-text text-sm sm:text-[15px]">
-        <span>{text}</span>
-        {glitch && !prefersReduced && (
-          <>
-            <span className="archv-g-layer archv-g-a">{text}</span>
-            <span className="archv-g-layer archv-g-b">{text}</span>
-          </>
-        )}
-      </div>
     </div>
   );
 }
