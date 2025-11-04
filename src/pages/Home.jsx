@@ -13,7 +13,6 @@ export default function Home() {
   const t = useTokens(theme);
   const footerRef = useRef(null);
 
-  // Keep a CSS var with the live footer height so the bubble can sit above it on all screens
   useEffect(() => {
     const updateFooterH = () => {
       const h = footerRef.current?.offsetHeight || 56;
@@ -83,7 +82,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* About bubble sits outside footer and auto-offsets above it */}
+      {/* About bubble */}
       <AboutUsBubble />
 
       <SideProductum />
@@ -152,12 +151,10 @@ function AboutUsBubble() {
 
       {open && (
         <div className="fixed inset-0 z-[10000]">
-          {/* overlay */}
           <div
             className="absolute inset-0 z-0 bg-black/40 backdrop-blur-[2px]"
             onClick={() => setOpen(false)}
           />
-          {/* modal */}
           <div
             className="absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
                        w-[92vw] max-w-md rounded-2xl border border-black/10 dark:border-white/10
@@ -218,24 +215,36 @@ function AboutUsBubble() {
   );
 }
 
+/* ----------------- Team Member ----------------- */
 function TeamMember({ initials, name, title, link }) {
   return (
-    <div className="flex items-start gap-3">
-      <div className="h-10 w-10 rounded-full border border-current/15 grid place-items-center text-xs select-none">
+    <div className="grid grid-cols-[40px_1fr] gap-3 items-center">
+      <div className="h-10 w-10 rounded-full border border-current/15 grid place-items-center text-xs select-none flex-shrink-0">
         {initials}
       </div>
-      <div>
-        <p className="text-sm">
-          <span className="font-medium">{name}</span> — {title}
+
+      <div className="min-w-0">
+        <p className="text-sm leading-tight truncate">
+          <span className="font-medium align-middle">{name}</span>
+          <span className="opacity-80 align-middle"> · {title}</span>
         </p>
-        <p className="text-[13px] opacity-80 mb-1">
-          3rd-year Computer Engineering
-        </p>
+
+        {name.includes("Joonhyuk") ? (
+          <p className="text-[13px] leading-tight opacity-80 mt-1">
+            Computer Engineering, UC Irvine
+          </p>
+        ) : (
+          <p className="text-[13px] leading-tight opacity-80 mt-1">
+            Computer Engineering, Electrical Engineering, and Applied
+            Mathematics, UC Irvine
+          </p>
+        )}
+
         <a
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[13px] text-blue-500 hover:underline"
+          className="inline-block mt-1 text-[13px] text-blue-500 hover:underline"
         >
           LinkedIn
         </a>
